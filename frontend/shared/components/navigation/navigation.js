@@ -2,7 +2,7 @@
 // NAVIGATION.JS — Navegação, scrollers, tema, eventos de UI
 // ============================================================
 
-import { state, isSuperAdmin, isAdmin, getFamilyId, getTeamId } from '../../../app/state/store.js';
+import { state, isSuperAdmin, isAdmin, isComissao, getFamilyId, getTeamId } from '../../../app/state/store.js';
 import { showAlert, toDateStr } from '../../utils/helpers.js';
 import { firebaseReady, saveDataToStorage, loadDataFromStorage, exportData, importData, syncData, clearCache, syncAllToFirebase, allowRefresh } from '../../../app/providers/firebase-provider.js';
 import { uploadAvatar, loginUser, registerUser, changeUserPassword, savePhoneNumber, saveRecado, loadUsersList, saveUserEdit, loadFamiliesListUI, createFamily, populateFamilySelects, loadFamily, applyUserToUI, logout } from '../../../app/providers/auth-provider.js';
@@ -324,7 +324,7 @@ export function setupEventListeners() {
 
   // Forms
   document.getElementById('transactionForm').addEventListener('submit', addTransaction);
-  document.getElementById('addDebtBtn').addEventListener('click', () => { resetDebtModal(); document.getElementById('debtModal').classList.add('active'); });
+  document.getElementById('addDebtBtn').addEventListener('click', () => { if (!isComissao()) return; resetDebtModal(); document.getElementById('debtModal').classList.add('active'); });
   document.getElementById('debtForm').addEventListener('submit', addDebt);
   document.getElementById('addSalaryBtn').addEventListener('click', () => { document.getElementById('salaryModal').classList.add('active'); });
   document.getElementById('salaryForm').addEventListener('submit', addSalary);

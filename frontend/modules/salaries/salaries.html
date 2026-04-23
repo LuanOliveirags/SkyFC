@@ -62,10 +62,9 @@
 
                 <!-- Jogador (só para mensalidade) -->
                 <div class="form-group" id="playerGroup">
-                    <label for="salaryPerson">Jogador</label>
-                    <select id="salaryPerson" required>
-                        <option value="">Selecione o jogador...</option>
-                    </select>
+                    <label for="salaryPersonDisplay">Jogador</label>
+                    <input type="text" id="salaryPersonDisplay" readonly style="opacity:0.7;cursor:not-allowed;">
+                    <input type="hidden" id="salaryPerson">
                 </div>
 
                 <!-- Patrocinador / Origem (para patrocínio e outro) -->
@@ -74,17 +73,13 @@
                     <input type="text" id="sponsorName" placeholder="Ex: Nike, Prefeitura...">
                 </div>
 
-                <div class="form-group">
+                <div class="form-group" id="amountGroup">
                     <label for="salaryAmount">Valor (R$)</label>
                     <input type="number" id="salaryAmount" placeholder="0,00" step="0.01" min="0" required>
                 </div>
                 <div class="form-group">
                     <label for="salaryDate">Data</label>
                     <input type="date" id="salaryDate" required>
-                </div>
-                <div class="form-group">
-                    <label for="salaryDescription">Descrição (opcional)</label>
-                    <input type="text" id="salaryDescription" placeholder="Ex: Mensalidade abril, Patrocínio camisas...">
                 </div>
 
                 <button type="submit" class="btn-primary">

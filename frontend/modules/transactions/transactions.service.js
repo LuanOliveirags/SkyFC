@@ -3,7 +3,7 @@
 // ============================================================
 
 import { CATEGORY_MAP } from '../../app/providers/firebase-config.js';
-import { state, getFamilyId } from '../../app/state/store.js';
+import { state, getFamilyId, isComissao } from '../../app/state/store.js';
 import { generateId, esc, formatCurrency, formatDate, showAlert, emptyState, toDateStr } from '../../shared/utils/helpers.js';
 import { saveDataToStorage } from '../../app/providers/firebase-provider.js';
 import { saveToFirebase, deleteFromFirebase } from '../../app/providers/firebase-provider.js';
@@ -12,6 +12,7 @@ import { updateDashboard } from '../dashboard/dashboard.js';
 // ===== ADICIONAR TRANSAÇÃO =====
 export function addTransaction(e) {
   e.preventDefault();
+  if (!isComissao()) { showAlert('Sem permissão para registrar transações.', 'danger'); return; }
   const familyId = getFamilyId();
   if (!familyId) { showAlert('Erro: família não identificada.', 'danger'); return; }
 
@@ -110,6 +111,9 @@ export function updateRecentTransactions(transactions) {
 
 // ===== HISTÓRICO DE TRANSAÇÕES =====
 export function updateTransactionHistory() {
+  // Oculta painel de nova transação para jogadores
+  const addPanel = document.getElementById('addTransactionPanel');
+  if (addPanel) addPanel.style.display = isComissao() ? '' : 'none';
   const container = document.getElementById('transactionHistoryList');
   if (!container) return;
 

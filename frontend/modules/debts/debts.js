@@ -3,7 +3,7 @@
 // ============================================================
 
 import { CATEGORY_MAP, BANK_IMG, CREDITOR_IMG } from '../../app/providers/firebase-config.js';
-import { state, getFamilyId } from '../../app/state/store.js';
+import { state, getFamilyId, isComissao } from '../../app/state/store.js';
 import { generateId, esc, formatCurrency, formatDate, toDateStr, showAlert, emptyState } from '../../shared/utils/helpers.js';
 import { saveDataToStorage, saveToFirebase, deleteFromFirebase, updateInFirebase } from '../../app/providers/firebase-provider.js';
 import { updateDashboard } from '../dashboard/dashboard.js';
@@ -281,6 +281,9 @@ export function payDebt(id) {
 
 // ===== ATUALIZAR LISTA =====
 export function updateDebtsList() {
+  // Oculta o botão "Nova Despesa" para jogadores
+  const addBtn = document.getElementById('addDebtBtn');
+  if (addBtn) addBtn.style.display = isComissao() ? '' : 'none';
   const container = document.getElementById('debtsList');
   const activeDebts = state.debts.filter(d => d.status === 'active');
 

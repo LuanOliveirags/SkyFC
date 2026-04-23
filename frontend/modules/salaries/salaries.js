@@ -19,7 +19,7 @@ export function addSalary(e) {
   e.preventDefault();
 
   const type   = document.getElementById('salaryType')?.value || 'mensalidade';
-  const amount = parseFloat(document.getElementById('salaryAmount').value);
+  const amount = type === 'mensalidade' ? 25 : parseFloat(document.getElementById('salaryAmount').value);
   const date   = document.getElementById('salaryDate').value;
 
   // Origem da receita
@@ -44,7 +44,7 @@ export function addSalary(e) {
     amount,
     grossAmount: amount,
     date,
-    description: document.getElementById('salaryDescription').value.trim(),
+    description: '',
     teamId,
     familyId: teamId,
     createdAt: new Date().toISOString(),
@@ -89,33 +89,50 @@ function _setType(type) {
 
   const playerGroup  = document.getElementById('playerGroup');
   const sponsorGroup = document.getElementById('sponsorGroup');
-  const personSelect = document.getElementById('salaryPerson');
+  const personHidden  = document.getElementById('salaryPerson');
+  const personDisplay = document.getElementById('salaryPersonDisplay');
   const sponsorInput = document.getElementById('sponsorName');
+
+  const amountInput = document.getElementById('salaryAmount');
 
   if (type === 'mensalidade') {
     if (playerGroup)  playerGroup.style.display  = '';
     if (sponsorGroup) sponsorGroup.style.display = 'none';
-    if (personSelect) personSelect.required = true;
     if (sponsorInput) sponsorInput.required = false;
+    // Preenche com o nome do usuário logado
+    const name = state.currentUser?.fullName || '';
+    if (personHidden)  personHidden.value  = name;
+    if (personDisplay) personDisplay.value = name;
+    if (amountInput) {
+      amountInput.value    = '25';
+      amountInput.readOnly = true;
+      amountInput.style.opacity = '0.7';
+      amountInput.style.cursor  = 'not-allowed';
+    }
   } else {
     if (playerGroup)  playerGroup.style.display  = 'none';
     if (sponsorGroup) sponsorGroup.style.display = '';
-    if (personSelect) personSelect.required = false;
     if (sponsorInput) sponsorInput.required = false;
     const label = document.querySelector('label[for="sponsorName"]');
     if (label) label.textContent = type === 'patrocinio' ? 'Patrocinador' : 'Origem';
     const placeholder = type === 'patrocinio' ? 'Ex: Nike, Prefeitura...' : 'Ex: Rifa, Evento...';
     if (sponsorInput) sponsorInput.placeholder = placeholder;
+    if (amountInput) {
+      if (amountInput.value === '25') amountInput.value = '';
+      amountInput.readOnly = false;
+      amountInput.style.opacity = '';
+      amountInput.style.cursor  = '';
+    }
   }
 }
 
-// ===== POPULAR SELECT DE JOGADORES =====
+// ===== POPULAR CAMPO DE JOGADOR =====
 function _populatePlayerSelect() {
-  const select = document.getElementById('salaryPerson');
-  if (!select) return;
-  const players = (state.players || []).sort((a, b) => (a.fullName || '').localeCompare(b.fullName || ''));
-  select.innerHTML = '<option value="">Selecione o jogador...</option>' +
-    players.map(p => `<option value="${esc(p.fullName)}">${esc(p.fullName)}</option>`).join('');
+  const name = state.currentUser?.fullName || '';
+  const hidden  = document.getElementById('salaryPerson');
+  const display = document.getElementById('salaryPersonDisplay');
+  if (hidden)  hidden.value  = name;
+  if (display) display.value = name;
 }
 
 // ===== SETUP LISTENERS =====
