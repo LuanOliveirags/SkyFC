@@ -141,7 +141,8 @@ html {
     margin-top: auto;
     margin-bottom: 8px;
     padding: 0;
-    align-items: center;
+    display: grid;
+    place-items: center;
     position: relative;
     order: 3;
     width: 100%;
@@ -157,7 +158,6 @@ html {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin: 0 auto;
   }
   .fab-btn::after {
     content: none;
