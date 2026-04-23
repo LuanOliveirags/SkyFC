@@ -191,17 +191,18 @@ export async function loadFamilyMembers() {
 // ===== POPULAR SELECTS DE MEMBROS =====
 export function populateMemberSelects() {
   const members = state.players || [];
+  const comissao = members.filter(m => ['superadmin', 'admin', 'comissao'].includes(m.role));
   const selects = [
-    { el: document.getElementById('tranResponsible'), placeholder: 'Selecione...', addAmbos: true },
-    { el: document.getElementById('debtResponsible'), placeholder: null, addAmbos: true },
-    { el: document.getElementById('salaryPerson'), placeholder: null, addAmbos: false, prefix: '' }
+    { el: document.getElementById('tranResponsible'), members: comissao, placeholder: 'Selecione...', addAmbos: true },
+    { el: document.getElementById('debtResponsible'), members, placeholder: null, addAmbos: true },
+    { el: document.getElementById('salaryPerson'), members, placeholder: null, addAmbos: false, prefix: '' }
   ];
-  selects.forEach(({ el, placeholder, addAmbos, prefix }) => {
+  selects.forEach(({ el, members: list, placeholder, addAmbos, prefix }) => {
     if (!el) return;
     const prev = el.value;
     el.innerHTML = '';
     if (placeholder) el.innerHTML += `<option value="">${placeholder}</option>`;
-    members.forEach(m => { el.innerHTML += `<option value="${esc(m.fullName)}">${(prefix || '')}${esc(m.fullName)}</option>`; });
+    list.forEach(m => { el.innerHTML += `<option value="${esc(m.fullName)}">${(prefix || '')}${esc(m.fullName)}</option>`; });
     if (addAmbos) el.innerHTML += `<option value="Todos">Todos</option>`;
     if (prev && [...el.options].some(o => o.value === prev)) el.value = prev;
   });
