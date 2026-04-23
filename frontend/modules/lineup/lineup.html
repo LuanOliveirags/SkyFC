@@ -1,0 +1,76 @@
+<!-- ====== LINEUP — Escalação tática ====== -->
+<section id="lineup" class="tab-content">
+  <div class="lineup-container">
+
+    <!-- Header -->
+    <div class="lineup-header">
+      <h2 class="page-title">⚽ Escalação</h2>
+      <button class="lineup-save-btn" id="lineupSaveBtn">
+        <i class="fa-solid fa-upload"></i> Publicar
+      </button>
+    </div>
+
+    <!-- Banner: quem publicou a escalação -->
+    <div class="lineup-published-info" id="lineupPublishedInfo" style="display:none">
+      <i class="fa-solid fa-shield-halved"></i>
+      <span id="lineupPublishedText">Publicado por —</span>
+    </div>
+
+    <!-- Informação da partida -->
+    <div class="lineup-meta">
+      <input type="text" id="lineupMatchInfo" class="lineup-input"
+             placeholder="Ex: Sky FC vs Adversário — 26/04" maxlength="60" autocomplete="off">
+    </div>
+
+    <!-- Seletor de formação -->
+    <div class="lineup-formation-bar">
+      <p>Formação</p>
+      <div class="lineup-formations" id="lineupFormations">
+        <!-- chips renderizados por JS -->
+      </div>
+    </div>
+
+    <!-- Campo de futebol -->
+    <div class="lineup-field-wrap">
+      <div class="lineup-field" id="lineupField">
+        <!-- Marcações do campo -->
+        <div class="lf-center-line"></div>
+        <div class="lf-center-circle"></div>
+        <div class="lf-center-dot"></div>
+        <div class="lf-penalty-top"></div>
+        <div class="lf-penalty-bottom"></div>
+        <div class="lf-goal-top"></div>
+        <div class="lf-goal-bottom"></div>
+        <div class="lf-spot-top"></div>
+        <div class="lf-spot-bottom"></div>
+        <!-- Posições renderizadas por JS -->
+        <div id="lineupPositions"></div>
+      </div>
+    </div>
+
+    <!-- Escalações salvas -->
+    <div class="lineup-saved-section" id="lineupSavedSection">
+      <span class="lineup-saved-label">Salvas:</span>
+      <!-- botões renderizados por JS -->
+    </div>
+
+  </div>
+
+  <!-- Player Picker (bottom sheet) -->
+  <div class="lineup-picker-overlay" id="lineupPickerOverlay">
+    <div class="lineup-picker" id="lineupPicker">
+      <div class="lineup-picker-header">
+        <span id="lineupPickerLabel">Escolher jogador</span>
+        <button id="lineupPickerClose" aria-label="Fechar picker"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="lineup-picker-search">
+        <input type="text" id="lineupPickerSearch" placeholder="Buscar jogador..." autocomplete="off">
+      </div>
+      <div class="lineup-picker-list" id="lineupPickerList"></div>
+      <div class="lineup-picker-custom">
+        <input type="text" id="lineupCustomName" placeholder="Ou digitar nome..." maxlength="20" autocomplete="off">
+        <button id="lineupCustomConfirm" title="Confirmar"><i class="fa-solid fa-check"></i></button>
+      </div>
+    </div>
+  </div>
+</section>

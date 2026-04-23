@@ -1,0 +1,109 @@
+<!-- ====== SALARIES TAB ====== -->
+<section id="salaries" class="tab-content">
+    <div class="page-header">
+        <h2 class="page-title">💰 Receitas</h2>
+        <button id="addSalaryBtn" class="add-new-btn">
+            <i class="fa-solid fa-plus"></i> Nova receita
+        </button>
+    </div>
+
+    <!-- Resumo rápido -->
+    <div class="salary-summary-cards">
+        <div class="sal-sum-card sal-sum--mensalidades">
+            <div class="sal-sum-icon">💳</div>
+            <div class="sal-sum-info">
+                <span class="sal-sum-label">Mensalidades</span>
+                <span class="sal-sum-value" id="sumMensalidades">R$ 0,00</span>
+                <span class="sal-sum-sub" id="sumMensalidadesCount">0 recebidas</span>
+            </div>
+        </div>
+        <div class="sal-sum-card sal-sum--patrocinios">
+            <div class="sal-sum-icon">🏅</div>
+            <div class="sal-sum-info">
+                <span class="sal-sum-label">Patrocínios</span>
+                <span class="sal-sum-value" id="sumPatrocinios">R$ 0,00</span>
+                <span class="sal-sum-sub" id="sumPatrociniosCount">0 entradas</span>
+            </div>
+        </div>
+        <div class="sal-sum-card sal-sum--total">
+            <div class="sal-sum-icon">💵</div>
+            <div class="sal-sum-info">
+                <span class="sal-sum-label">Total do mês</span>
+                <span class="sal-sum-value" id="sumTotal">R$ 0,00</span>
+                <span class="sal-sum-sub" id="sumOtherCount"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Nova Receita -->
+    <div id="salaryModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-coins"></i> Nova Receita</h3>
+                <button class="close modal-close-btn"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="salaryForm">
+                <!-- Tipo -->
+                <div class="form-group">
+                    <label>Tipo</label>
+                    <div class="salary-type-toggle">
+                        <button type="button" class="salary-type-btn active" data-type="mensalidade" id="btnMensalidade">
+                            <i class="fa-solid fa-credit-card"></i> Mensalidade
+                        </button>
+                        <button type="button" class="salary-type-btn" data-type="patrocinio" id="btnPatrocinio">
+                            <i class="fa-solid fa-medal"></i> Patrocínio
+                        </button>
+                        <button type="button" class="salary-type-btn" data-type="outro" id="btnOutro">
+                            <i class="fa-solid fa-ellipsis"></i> Outro
+                        </button>
+                    </div>
+                    <input type="hidden" id="salaryType" value="mensalidade">
+                </div>
+
+                <!-- Jogador (só para mensalidade) -->
+                <div class="form-group" id="playerGroup">
+                    <label for="salaryPerson">Jogador</label>
+                    <select id="salaryPerson" required>
+                        <option value="">Selecione o jogador...</option>
+                    </select>
+                </div>
+
+                <!-- Patrocinador / Origem (para patrocínio e outro) -->
+                <div class="form-group" id="sponsorGroup" style="display:none;">
+                    <label for="sponsorName">Patrocinador / Origem</label>
+                    <input type="text" id="sponsorName" placeholder="Ex: Nike, Prefeitura...">
+                </div>
+
+                <div class="form-group">
+                    <label for="salaryAmount">Valor (R$)</label>
+                    <input type="number" id="salaryAmount" placeholder="0,00" step="0.01" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="salaryDate">Data</label>
+                    <input type="date" id="salaryDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="salaryDescription">Descrição (opcional)</label>
+                    <input type="text" id="salaryDescription" placeholder="Ex: Mensalidade abril, Patrocínio camisas...">
+                </div>
+
+                <button type="submit" class="btn-primary">
+                    <i class="fa-solid fa-check"></i> Registrar
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Histórico -->
+    <div class="list-section">
+        <div class="list-section-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+            <h3>Histórico de Receitas</h3>
+            <div class="salary-month-filter">
+                <select id="salaryMonthFilter" class="salary-month-select">
+                    <!-- Populated by JS -->
+                </select>
+            </div>
+        </div>
+        <div id="salaryHistoryList" class="transactions-list"></div>
+    </div>
+</section>

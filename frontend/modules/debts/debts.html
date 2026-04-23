@@ -1,0 +1,185 @@
+﻿<!-- ====== DEBTS TAB ====== -->
+<section id="debts" class="tab-content">
+    <div class="page-header">
+        <h2 class="page-title">� Despesas do Time</h2>
+        <button id="addDebtBtn" class="add-new-btn">
+            <i class="fa-solid fa-plus"></i> Nova Despesa
+        </button>
+    </div>
+
+    <!-- Modal Nova Despesa -->
+    <div id="debtModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="debtModalTitle"><i class="fa-solid fa-money-bill-wave"></i> Nova Despesa</h3>
+                <button class="close modal-close-btn"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="debtForm">
+                <input type="hidden" id="editDebtId" value="">
+                <div class="form-group" id="creditorTextGroup">
+                    <label for="debtCreditor">Fornecedor / Local</label>
+                    <input type="text" id="debtCreditor" placeholder="Ex: Loja de Esportes, Prefeitura, Transportadora..." required>
+                </div>
+
+                <!-- Tipo de despesa -->
+                <div class="form-group">
+                    <label>Tipo</label>
+                    <div class="type-toggle-group debt-type-group">
+                        <button type="button" class="type-toggle-btn active debt-type-toggle" data-value="unica">
+                            <i class="fa-solid fa-receipt"></i> Única
+                        </button>
+                        <button type="button" class="type-toggle-btn debt-type-toggle" data-value="recorrente">
+                            <i class="fa-solid fa-rotate"></i> Recorrente
+                        </button>
+                        <button type="button" class="type-toggle-btn debt-type-toggle" data-value="parcelada">
+                            <i class="fa-solid fa-layer-group"></i> Parcelada
+                        </button>
+                    </div>
+                    <input type="hidden" id="debtType" value="unica">
+                </div>
+
+                <div class="form-group">
+                    <label for="debtAmount" id="debtAmountLabel">Valor (R$)</label>
+                    <input type="number" id="debtAmount" placeholder="0,00" step="0.01" required>
+                </div>
+
+                <!-- Campos de parcelamento -->
+                <div id="installmentFields" style="display:none">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="debtInstallments">Nº Parcelas</label>
+                            <input type="number" id="debtInstallments" placeholder="Ex: 12" min="2" step="1">
+                        </div>
+                        <div class="form-group">
+                            <label for="debtInstallmentValue">Valor Parcela (R$)</label>
+                            <input type="number" id="debtInstallmentValue" placeholder="0,00" step="0.01">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="debtPaidInstallments">Parcelas Pagas</label>
+                            <input type="number" id="debtPaidInstallments" placeholder="0" min="0" step="1" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="debtRemainingValue">Restante (R$)</label>
+                            <input type="number" id="debtRemainingValue" placeholder="0,00" step="0.01" readonly>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="debtDueDate">Vencimento</label>
+                    <input type="date" id="debtDueDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="debtResponsible">Responsável</label>
+                    <select id="debtResponsible" required>
+                        <!-- Populado dinamicamente por JS -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="debtCategory">Categoria</label>
+                    <select id="debtCategory" required>
+                        <option value="">Selecione...</option>
+                        <option value="uniformes">🎽 Uniformes e Materiais</option>
+                        <option value="taxas">🏆 Taxas e Inscrições</option>
+                        <option value="transporte">🚌 Transporte</option>
+                        <option value="alimentacao">🥤 Alimentação</option>
+                        <option value="saude">💊 Saúde e Apoio</option>
+                        <option value="divulgacao">📣 Divulgação e Admin</option>
+                        <option value="manutencao">🔧 Manutenção do Time</option>
+                        <option value="outros">📁 Outros</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="debtDescription">Descrição</label>
+                    <textarea id="debtDescription" placeholder="Ex: Uniformes completos (30 jogos), Taxa arbitragem campeonato municipal..." rows="3"></textarea>
+                </div>
+                <button type="submit" class="btn-primary" id="debtSubmitBtn">
+                    <i class="fa-solid fa-check"></i> Registrar
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Alertas de vencimento (sino) -->
+    <div class="debt-alerts-wrap">
+        <button id="debtAlertsBell" class="debt-bell-btn" style="display:none">
+            <i class="fa-solid fa-bell"></i>
+            <span class="debt-bell-badge" id="debtAlertsBadge">0</span>
+        </button>
+        <div id="debtAlertsDropdown" class="debt-alerts-dropdown">
+            <div id="debtAlerts" class="debt-alerts"></div>
+        </div>
+    </div>
+
+    <!-- Resumo das despesas -->
+    <div class="debt-overview-panel stagger-enter">
+        <div class="debt-overview-card debt-ov-unica" data-filter="unica" role="button" tabindex="0">
+            <div class="debt-ov-header">
+                <div class="debt-ov-icon"><i class="fa-solid fa-receipt"></i></div>
+                <div>
+                    <p class="debt-ov-title">Únicas</p>
+                    <p class="debt-ov-subtitle">Compras pontuais</p>
+                </div>
+            </div>
+            <p class="debt-ov-amount" id="totalUnicas">R$ 0,00</p>
+            <div class="debt-ov-footer">
+                <span class="debt-ov-count" id="unicaDebtCount">0 despesas</span>
+                <span class="debt-ov-badge badge-monthly">À vista</span>
+            </div>
+        </div>
+        <div class="debt-overview-card debt-ov-recorrente" data-filter="recorrente" role="button" tabindex="0">
+            <div class="debt-ov-header">
+                <div class="debt-ov-icon"><i class="fa-solid fa-rotate"></i></div>
+                <div>
+                    <p class="debt-ov-title">Recorrentes</p>
+                    <p class="debt-ov-subtitle">Aluguel, mensalidades</p>
+                </div>
+            </div>
+            <p class="debt-ov-amount" id="totalRecorrentes">R$ 0,00</p>
+            <div class="debt-ov-footer">
+                <span class="debt-ov-count" id="recorrenteDebtCount">0 despesas</span>
+                <span class="debt-ov-badge badge-financing">Por mês</span>
+            </div>
+        </div>
+        <div class="debt-overview-card debt-ov-parcelada" data-filter="parcelada" role="button" tabindex="0">
+            <div class="debt-ov-header">
+                <div class="debt-ov-icon"><i class="fa-solid fa-layer-group"></i></div>
+                <div>
+                    <p class="debt-ov-title">Parceladas</p>
+                    <p class="debt-ov-subtitle">Compras a prazo</p>
+                </div>
+            </div>
+            <p class="debt-ov-amount" id="totalParceladas">R$ 0,00</p>
+            <div class="debt-ov-footer">
+                <span class="debt-ov-count" id="parceladaDebtCount">0 despesas</span>
+                <span class="debt-ov-remaining" id="parceladaRemaining">Falta: R$ 0,00</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="debt-summary-strip stagger-enter">
+        <div class="summary-mini" data-filter="all" role="button" tabindex="0">
+            <div class="sm-icon active-sm-icon"><i class="fa-solid fa-hourglass-half"></i></div>
+            <div class="sm-text">
+                <p class="sm-label">Pendentes</p>
+                <p class="sm-value" id="activeDebts">0</p>
+            </div>
+        </div>
+        <div class="summary-mini" data-filter="paid" role="button" tabindex="0">
+            <div class="sm-icon paid-sm-icon"><i class="fa-solid fa-circle-check"></i></div>
+            <div class="sm-text">
+                <p class="sm-label">Já Pagas</p>
+                <p class="sm-value" id="totalPaidDebtsTab">R$ 0,00</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="debtFilterBar" class="debt-filter-bar">
+        <span id="debtFilterLabel"><i class="fa-solid fa-filter"></i> Filtrando: —</span>
+        <button class="debt-filter-clear" onclick="clearDebtFilter()"><i class="fa-solid fa-xmark"></i> Limpar</button>
+    </div>
+
+    <div id="debtsList" class="debts-list"></div>
+</section>
