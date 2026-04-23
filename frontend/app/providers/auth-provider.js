@@ -391,6 +391,12 @@ export function applyUserToUI() {
   const manageFamiliesBtn = document.getElementById('manageFamiliesBtn');
   if (manageFamiliesBtn) manageFamiliesBtn.style.display = isAdmin() ? '' : 'none';
 
+  // Oculta botões de Transação e Compras no FAB para jogadores
+  const fabTransactionBtn = document.querySelector('.quick-action-item[data-action="transaction"]');
+  if (fabTransactionBtn) fabTransactionBtn.style.display = isComissao() ? '' : 'none';
+  const fabShoppingBtn = document.querySelector('.quick-action-item[data-action="shopping"]');
+  if (fabShoppingBtn) fabShoppingBtn.style.display = isComissao() ? '' : 'none';
+
   // Eventos visível para todos
   const choresBtn = document.getElementById('choresNavBtn');
   if (choresBtn) choresBtn.style.display = '';
