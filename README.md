@@ -1,4 +1,179 @@
-# 💰 WolfSource - Gestão de Despesas PWA
+# ⚽ Sky FC — Plataforma de Gestão do Time
+
+Aplicação web PWA (Progressive Web App) para gestão completa de um time de futebol: financeiro, jogadores, tarefas, escalação, compras e chat.
+
+## 🎯 Funcionalidades
+
+- 📊 **Dashboard**: KPIs financeiros, gráficos e transações recentes
+- 💳 **Mensalidades / Receitas**: Registro de mensalidades dos jogadores e patrocínios
+- 💸 **Transações**: Controle de entradas e saídas do time
+- 🧾 **Despesas / Dívidas**: Contas a pagar, parcelamentos e status de adimplência
+- 🗓️ **Escalação**: Editor tático com múltiplas formações e publicação para o time
+- 🛒 **Lista de Compras**: Listas por mercado com itens, preços e checkout
+- 🧹 **Tarefas**: Pré-jogo e pós-jogo com rodízio automático de responsáveis
+- 💬 **Chat**: Mensagens em tempo real com notificações push (FCM)
+- ⚙️ **Configurações**: Perfis de usuário, export/import e sincronização
+- 📱 **PWA**: Instale como app nativo no celular ou desktop
+- 🔄 **Offline**: Funciona sem conexão e sincroniza ao voltar online
+
+## 🔐 Perfis de Acesso
+
+| Perfil       | Permissões                                              |
+|--------------|---------------------------------------------------------|
+| `superadmin` | Acesso total (apenas o dev)                            |
+| `admin`      | Gestão completa do time                                 |
+| `comissao`   | Registrar transações, dívidas, escalação e tarefas      |
+| `jogador`    | Visualização, chat e confirmação de tarefas             |
+
+## 🚀 Como Usar
+
+### Requisitos
+- Navegador moderno com suporte a ES Modules (Chrome, Edge, Firefox, Safari)
+- Conta no [Firebase](https://console.firebase.google.com) configurada
+
+### 1. Configurar Firebase
+
+No arquivo `frontend/app/providers/firebase-config.js`, preencha com os dados do seu projeto:
+
+```javascript
+export const firebaseConfig = {
+  apiKey: "sua-api-key",
+  authDomain: "seu-projeto.firebaseapp.com",
+  projectId: "seu-projeto",
+  storageBucket: "seu-projeto.appspot.com",
+  messagingSenderId: "seu-id",
+  appId: "seu-app-id"
+};
+
+export const TEAM_ID = 'skyfc-main'; // ID do time no Firestore
+```
+
+### 2. Criar o Primeiro Usuário Admin
+
+1. No Firebase Console → Authentication → Adicionar usuário
+2. No Firebase Console → Firestore → Coleção `users` → Criar documento com o UID do usuário:
+
+```json
+{
+  "id": "<uid do Firebase Auth>",
+  "fullName": "Nome Completo",
+  "email": "admin@skyfc.com",
+  "login": "admin",
+  "role": "admin",
+  "teamId": "skyfc-main",
+  "isActive": true
+}
+```
+
+### 3. Abrir a Aplicação
+
+Sirva os arquivos com qualquer servidor HTTP estático. Exemplos:
+
+```bash
+# Python
+python -m http.server 8080
+
+# Node.js
+npx serve .
+```
+
+Acesse `http://localhost:8080` no navegador.
+
+### 4. Instalar como PWA
+
+- **Android/Desktop Chrome**: Ícone de instalação na barra de endereço
+- **iOS Safari**: Compartilhar → Adicionar à Tela de Início
+
+## 🗄️ Estrutura de Dados (Firestore)
+
+| Coleção           | Descrição                              |
+|-------------------|----------------------------------------|
+| `users`           | Perfis e autenticação dos usuários     |
+| `teams`           | Dados do time                          |
+| `transactions`    | Entradas e saídas financeiras          |
+| `debts`           | Dívidas e contas a pagar               |
+| `salaries`        | Mensalidades e patrocínios             |
+| `memberships`     | Controle de adimplência                |
+| `events`          | Treinos e jogos                        |
+| `lineups`         | Escalações publicadas                  |
+| `shopping_lists`  | Listas de compras                      |
+| `chores_settings` | Tarefas e rodízio por time             |
+| `chat`            | Mensagens do chat                      |
+
+## 🏗️ Estrutura do Projeto
+
+```
+├── index.html
+├── manifest.json
+├── service-worker.js
+├── frontend/
+│   ├── app/
+│   │   ├── bootstrap.js          # Entry point (ES Modules)
+│   │   ├── router.js             # Carregamento de páginas
+│   │   ├── providers/
+│   │   │   ├── firebase-config.js
+│   │   │   ├── firebase-provider.js  # CRUD, sync e listeners
+│   │   │   └── auth-provider.js
+│   │   └── state/
+│   │       └── store.js          # Estado global
+│   ├── modules/
+│   │   ├── dashboard/
+│   │   ├── transactions/
+│   │   ├── debts/
+│   │   ├── salaries/
+│   │   ├── lineup/
+│   │   ├── chores/
+│   │   ├── shopping/
+│   │   ├── chat/
+│   │   ├── login/
+│   │   └── settings/
+│   └── shared/
+│       ├── components/
+│       │   ├── navigation/
+│       │   ├── modal/
+│       │   ├── forms/
+│       │   └── calendar/
+│       ├── services/
+│       │   └── notifications.js
+│       ├── styles/
+│       │   └── global/
+│       └── utils/
+│           └── helpers.js
+└── backend/                      # API Flask (opcional)
+    ├── app.py
+    ├── config.py
+    ├── requirements.txt
+    └── docker-compose.yml
+```
+
+## 💻 Tecnologias
+
+- **Frontend**: HTML5, CSS3, JavaScript (ES Modules), Chart.js
+- **Backend as a Service**: Firebase (Auth, Firestore, Storage, Cloud Messaging)
+- **PWA**: Service Worker, Web App Manifest
+- **Backend opcional**: Python + Flask + SQLAlchemy (Docker)
+
+## 🔧 Backend Python (opcional)
+
+O backend Flask pode ser usado para lógica server-side adicional.
+
+```bash
+cd backend
+pip install -r requirements.txt
+python app.py
+```
+
+Ou com Docker:
+
+```bash
+cd backend
+docker-compose up
+```
+
+## 📄 Licença
+
+MIT License
+
 
 Uma aplicação web moderna e responsiva para gestão completa de despesas financeiras, funcionando tanto online quanto offline com suporte a PWA (Progressive Web App).
 
