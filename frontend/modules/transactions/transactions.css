@@ -281,8 +281,7 @@
 .transaction-day-group .transaction-item:hover { transform: none; background: var(--bg-card-alt); }
 
 /* New category colors */
-.cat-beleza       { background: rgba(201,168,76,0.15); color: #C9A84C; }
-.cat-pets         { background: rgba(255,165,0,0.15);   color: #FFA500; }
-.cat-assinaturas  { background: rgba(138,43,226,0.15);  color: #8A2BE2; }
-.cat-investimentos{ background: rgba(0,128,0,0.15);     color: #008000; }
-.cat-academia     { background: rgba(255,87,34,0.15);   color: #FF5722; }
+.cat-uniformes    { background: rgba(21, 101, 192, 0.12);  color: #1565C0; }
+.cat-taxas        { background: rgba(230, 162, 0, 0.15);   color: #B8860B; }
+.cat-divulgacao   { background: rgba(255, 87, 34, 0.13);   color: #E64A19; }
+.cat-manutencao   { background: rgba(84, 110, 122, 0.15);  color: #37474F; }

@@ -57,18 +57,13 @@
                         <label for="tranCategory">Categoria</label>
                         <select id="tranCategory" required>
                             <option value="">Selecione...</option>
-                            <option value="alimentacao">🍽️ Alimentação</option>
-                            <option value="transporte">🚗 Transporte</option>
-                            <option value="saude">💊 Saúde</option>
-                            <option value="educacao">📚 Educação</option>
-                            <option value="moradia">🏠 Moradia</option>
-                            <option value="lazer">🎮 Lazer</option>
-                            <option value="utilidades">⚡ Utilidades</option>
-                            <option value="beleza">💅 Beleza</option>
-                            <option value="pets">🐾 Pets</option>
-                            <option value="assinaturas">📺 Assinaturas</option>
-                            <option value="investimentos">📈 Investimentos</option>
-                            <option value="academia">🏋️ Academia</option>
+                            <option value="uniformes">🎽 Uniformes e Materiais</option>
+                            <option value="taxas">🏆 Taxas e Inscrições</option>
+                            <option value="transporte">🚌 Transporte</option>
+                            <option value="alimentacao">🥤 Alimentação</option>
+                            <option value="saude">💊 Saúde e Apoio</option>
+                            <option value="divulgacao">📣 Divulgação e Admin</option>
+                            <option value="manutencao">🔧 Manutenção do Time</option>
                             <option value="outros">📁 Outros</option>
                         </select>
                     </div>
@@ -87,14 +82,14 @@
                         <button type="button" class="shop-pay-btn active" data-method="dinheiro"><i class="fa-solid fa-money-bill"></i> Dinheiro</button>
                         <button type="button" class="shop-pay-btn" data-method="cartao"><i class="fa-solid fa-credit-card"></i> Cartão</button>
                         <button type="button" class="shop-pay-btn" data-method="pix"><i class="fa-brands fa-pix"></i> Pix</button>
-                        <button type="button" class="shop-pay-btn shop-pay-vr" data-method="vr"><i class="fa-solid fa-utensils"></i> VR/VA</button>
+                        <button type="button" class="shop-pay-btn" data-method="transferencia"><i class="fa-solid fa-building-columns"></i> Transferência</button>
                     </div>
                     <input type="hidden" id="tranPaymentMethod" value="dinheiro">
                 </div>
 
                 <div class="form-group">
                     <label for="tranDescription">Descrição (opcional)</label>
-                    <input type="text" id="tranDescription" placeholder="Ex: Almoço no restaurante">
+                    <input type="text" id="tranDescription" placeholder="Ex: Uniforme titular, Taxa da Copa...">
                 </div>
 
                 <button type="submit" class="btn-primary">
