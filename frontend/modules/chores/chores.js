@@ -36,7 +36,10 @@ function getPreGameData() {
   if (c) try { return JSON.parse(c); } catch(e) {}
   return JSON.parse(JSON.stringify(PRE_GAME_DEFAULT));
 }
-function savePreGameData(d) { localStorage.setItem('skyfc_prejogo_custom', JSON.stringify(d)); }
+function savePreGameData(d) {
+  localStorage.setItem('skyfc_prejogo_custom', JSON.stringify(d));
+  _saveChoresSettingsToFirebase('preGameTasks', d);
+}
 
 function getPreDoneKey(day) {
   return `skyfc_prejogo_done_${day}_${new Date().toISOString().slice(0, 10)}`;
@@ -61,7 +64,35 @@ function getRotation() {
   if (r) try { return JSON.parse(r); } catch(e) {}
   return { order: [], doneThisCycle: [], postDone: {} };
 }
-function saveRotation(r) { localStorage.setItem('skyfc_rotation', JSON.stringify(r)); }
+function saveRotation(r) {
+  localStorage.setItem('skyfc_rotation', JSON.stringify(r));
+  _saveChoresSettingsToFirebase('rotation', r);
+}
+
+// ===== FIREBASE HELPERS =====
+async function _saveChoresSettingsToFirebase(field, value) {
+  if (!db) return;
+  const teamId = getTeamId();
+  if (!teamId) return;
+  try {
+    await db.collection('chores_settings').doc(teamId).set({ [field]: value }, { merge: true });
+  } catch (e) {
+    console.error('Erro ao salvar configuração de tarefas:', e);
+  }
+}
+
+async function _loadChoresSettingsFromFirebase() {
+  if (!db) return null;
+  const teamId = getTeamId();
+  if (!teamId) return null;
+  try {
+    const snap = await db.collection('chores_settings').doc(teamId).get();
+    return snap.exists ? snap.data() : null;
+  } catch (e) {
+    console.error('Erro ao carregar configuração de tarefas:', e);
+    return null;
+  }
+}
 
 function syncRotationWithPlayers(players) {
   const rot = getRotation();
@@ -117,7 +148,21 @@ export function openChoresTab() {
   choresCurrentDay = new Date().getDay();
   initChoresDayScroller();
   renderChoresTab(choresCurrentDay);
-  loadPlayers().then(() => renderChoresTab(choresCurrentDay));
+  // Carrega jogadores e configurações do Firebase em paralelo
+  Promise.all([
+    loadPlayers(),
+    _loadChoresSettingsFromFirebase()
+  ]).then(([, settings]) => {
+    if (settings) {
+      if (settings.preGameTasks) {
+        localStorage.setItem('skyfc_prejogo_custom', JSON.stringify(settings.preGameTasks));
+      }
+      if (settings.rotation) {
+        localStorage.setItem('skyfc_rotation', JSON.stringify(settings.rotation));
+      }
+    }
+    renderChoresTab(choresCurrentDay);
+  });
 }
 
 function initChoresDayScroller() {

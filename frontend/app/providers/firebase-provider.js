@@ -192,6 +192,9 @@ export async function loadDataFromFirebase() {
     const membSnap = await db.collection('memberships').where('teamId', '==', teamId).get();
     state.memberships = membSnap.docs.map(doc => doc.data()).sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
 
+    const salariesSnap = await db.collection('salaries').where('teamId', '==', teamId).get();
+    state.salaries = salariesSnap.docs.map(doc => doc.data()).sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+
     const eventsSnap = await db.collection('events').where('teamId', '==', teamId).get();
     state.events = eventsSnap.docs.map(doc => doc.data()).sort((a, b) => (b.date || '').localeCompare(a.date || ''));
 
@@ -243,7 +246,7 @@ export function listenFirebaseChanges() {
     }, 500);
   };
 
-  ['transactions', 'debts', 'memberships', 'events'].forEach(col => {
+  ['transactions', 'debts', 'memberships', 'salaries', 'events'].forEach(col => {
     const unsub = db.collection(col)
       .where('teamId', '==', teamId)
       .onSnapshot(debouncedLoad, err => console.error(`❌ Erro no listener de ${col}:`, err));
@@ -270,6 +273,7 @@ export async function syncAllToFirebase() {
     for (const t of state.transactions) await db.collection('transactions').doc(t.id).set({ ...t, teamId });
     for (const d of state.debts) await db.collection('debts').doc(d.id).set({ ...d, teamId });
     for (const m of state.memberships) await db.collection('memberships').doc(m.id).set({ ...m, teamId });
+    for (const s of state.salaries) await db.collection('salaries').doc(s.id).set({ ...s, teamId });
     for (const e of state.events) await db.collection('events').doc(e.id).set({ ...e, teamId });
     console.log('Todos os dados sincronizados com Firebase!');
   } catch (error) {

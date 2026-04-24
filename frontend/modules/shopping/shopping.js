@@ -4,7 +4,7 @@
 
 import { state, getFamilyId } from '../../app/state/store.js';
 import { generateId, esc, formatCurrency, showAlert, toDateStr } from '../../shared/utils/helpers.js';
-import { saveDataToStorage, saveToFirebase } from '../../app/providers/firebase-provider.js';
+import { saveDataToStorage, saveToFirebase, db } from '../../app/providers/firebase-provider.js';
 import { updateDashboard } from '../dashboard/dashboard.js';
 import { updateTransactionHistory } from '../transactions/transactions.service.js';
 
@@ -87,6 +87,44 @@ function getStorageKey() {
   return fid ? `shopping_lists_${fid}` : 'shopping_lists_local';
 }
 
+// ===== FIREBASE HELPERS =====
+async function _syncListToFirebase(list) {
+  if (!db) return;
+  const teamId = getFamilyId();
+  if (!teamId) return;
+  try {
+    await db.collection('shopping_lists').doc(list.id).set({ ...list, teamId });
+  } catch (e) {
+    console.error('Erro ao salvar lista no Firebase:', e);
+  }
+}
+
+async function _deleteListFromFirebase(listId) {
+  if (!db) return;
+  try {
+    await db.collection('shopping_lists').doc(listId).delete();
+  } catch (e) {
+    console.error('Erro ao excluir lista do Firebase:', e);
+  }
+}
+
+async function _loadShoppingFromFirebase() {
+  if (!db) return;
+  const teamId = getFamilyId();
+  if (!teamId) return;
+  try {
+    const snap = await db.collection('shopping_lists').where('teamId', '==', teamId).get();
+    if (!snap.empty) {
+      shoppingLists = snap.docs.map(doc => doc.data()).sort((a, b) =>
+        new Date(b.createdAt) - new Date(a.createdAt)
+      );
+      localStorage.setItem(getStorageKey(), JSON.stringify(shoppingLists));
+    }
+  } catch (e) {
+    console.error('Erro ao carregar listas do Firebase:', e);
+  }
+}
+
 function loadShoppingData() {
   const data = localStorage.getItem(getStorageKey());
   if (data) {
@@ -98,6 +136,11 @@ function loadShoppingData() {
 
 function saveShoppingData() {
   localStorage.setItem(getStorageKey(), JSON.stringify(shoppingLists));
+  // Sync active list to Firebase
+  if (activeListId) {
+    const list = shoppingLists.find(l => l.id === activeListId);
+    if (list) _syncListToFirebase(list);
+  }
 }
 
 // ===== ABERTURA / FECHAMENTO =====
@@ -106,6 +149,10 @@ export function openShoppingPanel() {
   shoppingView = 'lists';
   activeListId = null;
   renderShoppingView();
+  // Sincroniza do Firebase em segundo plano e re-renderiza se houver novidades
+  _loadShoppingFromFirebase().then(() => {
+    if (shoppingView === 'lists') renderShoppingView();
+  });
 }
 
 export function closeShoppingPanel() {
@@ -785,8 +832,10 @@ function deleteList() {
   const list = getActiveList();
   if (!list) return;
   if (!confirm(`Excluir a lista "${list.name}"?`)) return;
+  const listId = list.id;
   shoppingLists = shoppingLists.filter(l => l.id !== list.id);
   saveShoppingData();
+  _deleteListFromFirebase(listId);
   showAlert('Lista excluída.', 'info');
   shoppingView = 'lists';
   renderShoppingView();
