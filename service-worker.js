@@ -110,7 +110,14 @@ self.addEventListener('install', (event) => {
       })
       .catch((error) => console.log('Erro ao cachear:', error))
   );
-  self.skipWaiting();
+  // Não chama skipWaiting() aqui — o usuário aciona via botão "Atualizar App"
+});
+
+// Mensagem vinda do app: ativa o novo SW imediatamente
+self.addEventListener('message', (event) => {
+  if (event.data?.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
 
 // Activate Event

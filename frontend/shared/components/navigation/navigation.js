@@ -350,6 +350,32 @@ export function setupEventListeners() {
   document.getElementById('syncBtn').addEventListener('click', syncData);
   document.getElementById('clearCacheBtn').addEventListener('click', clearCache);
 
+  // Atualizar App via Service Worker
+  (() => {
+    const updateBtn = document.getElementById('updateAppBtn');
+    if (!updateBtn || !("serviceWorker" in navigator)) return;
+    let _waitingSW = null;
+    const _showUpdateBtn = (sw) => { _waitingSW = sw; updateBtn.style.display = ''; };
+    navigator.serviceWorker.getRegistration().then(reg => {
+      if (!reg) return;
+      if (reg.waiting) { _showUpdateBtn(reg.waiting); }
+      reg.addEventListener('updatefound', () => {
+        const newSW = reg.installing;
+        if (!newSW) return;
+        newSW.addEventListener('statechange', () => {
+          if (newSW.state === 'installed' && navigator.serviceWorker.controller) _showUpdateBtn(newSW);
+        });
+      });
+    });
+    navigator.serviceWorker.addEventListener('controllerchange', () => window.location.reload());
+    updateBtn.addEventListener('click', () => {
+      if (!_waitingSW) { navigator.serviceWorker.getRegistration().then(r => r?.update()); window.location.reload(); return; }
+      updateBtn.querySelector('.sr-text').textContent = 'Atualizando...';
+      updateBtn.disabled = true;
+      _waitingSW.postMessage({ type: 'SKIP_WAITING' });
+    });
+  })();
+
   // Install PWA
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
