@@ -2,7 +2,7 @@
 // SALARIES.JS — Receitas do time (Mensalidades + Patrocínios)
 // ============================================================
 
-import { state, getTeamId } from '../../app/state/store.js';
+import { state, getTeamId, isFinanceiro } from '../../app/state/store.js';
 import { generateId, esc, formatCurrency, formatDate, showAlert, emptyState } from '../../shared/utils/helpers.js';
 import { saveDataToStorage, saveToFirebase, deleteFromFirebase } from '../../app/providers/firebase-provider.js';
 import { updateDashboard } from '../dashboard/dashboard.js';
@@ -56,7 +56,9 @@ export function addSalary(e) {
     additions: [],
     deductions: [],
     totalAdditions: 0,
-    totalDeductions: 0
+    totalDeductions: 0,
+    // Mensalidades precisam de aprovação do financeiro, exceto quando ele mesmo registra
+    status: (type === 'mensalidade' && !isFinanceiro()) ? 'pending' : 'approved',
   };
 
   state.salaries.push(entry);
@@ -200,6 +202,7 @@ export function updateSalaryDisplay() {
   populateSalaryMonthFilter();
   _updateSummaryCards();
   updateSalaryHistory();
+  updateMensalidadeBadge();
 }
 
 function _getFilteredMonthYear() {
@@ -220,7 +223,7 @@ function _updateSummaryCards() {
     return d.getFullYear() === year && d.getMonth() === month;
   });
 
-  const mensalidades    = monthEntries.filter(s => s.salaryType === 'mensalidade');
+  const mensalidades    = monthEntries.filter(s => s.salaryType === 'mensalidade' && (s.status === 'approved' || !s.status));
   const valeChurrasco   = monthEntries.filter(s => s.salaryType === 'vale_churrasco');
   const festivais       = monthEntries.filter(s => s.salaryType === 'festivais');
   const patrocinios     = monthEntries.filter(s => s.salaryType === 'patrocinio');
@@ -258,10 +261,12 @@ export function updateSalaryHistory() {
     if (currentRole === 'superadmin' || currentRole === 'admin') return true;
     return entry.createdBy && entry.createdBy === currentUid;
   };
+  const canApproveReject = isFinanceiro();
 
   const sorted = filtered.slice().sort((a, b) => (b.date || '').localeCompare(a.date || ''));
   container.innerHTML = sorted.map(s => {
     const cfg = TYPE_CONFIG[s.salaryType] || TYPE_CONFIG.outro;
+    const isPending = s.salaryType === 'mensalidade' && s.status === 'pending';
     const defaultDesc = s.salaryType === 'mensalidade'
       ? `Mensalidade — ${esc(s.person)}`
       : s.salaryType === 'patrocinio'
@@ -270,8 +275,15 @@ export function updateSalaryHistory() {
     const deleteBtn = canDelete(s)
       ? `<button onclick="deleteSalary('${s.id}')" class="btn-delete" title="Excluir"><i class="fa-solid fa-trash"></i></button>`
       : '';
+    const approvalBtns = isPending && canApproveReject
+      ? `<button onclick="approveSalary('${s.id}')" class="btn-approve-salary" title="Aprovar pagamento"><i class="fa-solid fa-check"></i></button>` +
+        `<button onclick="rejectSalary('${s.id}')" class="btn-reject-salary" title="Rejeitar pagamento"><i class="fa-solid fa-xmark"></i></button>`
+      : '';
+    const pendingBadge = isPending
+      ? `<span class="sal-pending-badge"><i class="fa-solid fa-clock"></i> Aguardando</span>`
+      : '';
     return `
-    <div class="transaction-item">
+    <div class="transaction-item${isPending ? ' sal-item-pending' : ''}">
       <div class="trans-icon-wrap ${cfg.css}">${cfg.icon}</div>
       <div class="trans-info">
         <div class="trans-name">${esc(s.description) || defaultDesc}</div>
@@ -279,10 +291,12 @@ export function updateSalaryHistory() {
           <span>${formatDate(s.date)}</span><span>·</span>
           <span class="sal-type-badge sal-type-${s.salaryType}">${cfg.label}</span>
           ${s.person ? `<span>·</span><span>${esc(s.person)}</span>` : ''}
+          ${pendingBadge}
         </div>
       </div>
       <div style="display:flex;align-items:center;gap:8px">
-        <div class="trans-amount entrada">+${formatCurrency(s.amount)}</div>
+        <div class="trans-amount ${isPending ? 'sal-amount-pending' : 'entrada'}">+${formatCurrency(s.amount)}</div>
+        ${approvalBtns}
         ${deleteBtn}
       </div>
     </div>`;
@@ -292,5 +306,47 @@ export function updateSalaryHistory() {
 // ===== ALIAS / COMPAT =====
 export function updateSalaryHistory_alias() { updateSalaryHistory(); }
 
+// ===== APROVAÇÃO DE MENSALIDADES (apenas financeiro e superadmin) =====
+export function getPendingMensalidadesCount() {
+  return state.salaries.filter(s => s.salaryType === 'mensalidade' && s.status === 'pending').length;
+}
+
+export function updateMensalidadeBadge() {
+  const badge = document.getElementById('mensalidadePendingBadge');
+  if (!badge) return;
+  if (!isFinanceiro()) { badge.style.display = 'none'; return; }
+  const count = getPendingMensalidadesCount();
+  badge.textContent = count > 9 ? '9+' : String(count);
+  badge.style.display = count > 0 ? 'flex' : 'none';
+}
+
+export function approveSalary(id) {
+  if (!isFinanceiro()) { showAlert('Sem permissão para aprovar mensalidades.', 'warning'); return; }
+  const entry = state.salaries.find(s => s.id === id);
+  if (!entry) return;
+  entry.status = 'approved';
+  entry.approvedBy = state.currentUser?.id || '';
+  entry.approvedByName = state.currentUser?.fullName || '';
+  entry.approvedAt = new Date().toISOString();
+  saveDataToStorage();
+  saveToFirebase('salaries', entry);
+  showAlert('Mensalidade aprovada!', 'success');
+  updateSalaryDisplay();
+  updateDashboard();
+}
+
+export function rejectSalary(id) {
+  if (!isFinanceiro()) { showAlert('Sem permissão para rejeitar mensalidades.', 'warning'); return; }
+  if (!confirm('Rejeitar este pagamento? O registro será removido.')) return;
+  state.salaries = state.salaries.filter(s => s.id !== id);
+  saveDataToStorage();
+  deleteFromFirebase('salaries', id);
+  showAlert('Pagamento rejeitado e removido.', 'warning');
+  updateSalaryDisplay();
+  updateDashboard();
+}
+
 // ===== GLOBALS =====
 window.deleteSalary = deleteSalary;
+window.approveSalary = approveSalary;
+window.rejectSalary  = rejectSalary;

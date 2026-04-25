@@ -736,3 +736,101 @@
   color: var(--primary);
   white-space: nowrap;
 }
+
+/* ═══════════════════════════════
+   APROVAÇÃO DE MENSALIDADES
+═══════════════════════════════ */
+
+/* Item pendente de aprovação */
+.sal-item-pending {
+  border-left: 3px solid #f59e0b;
+  background: rgba(245, 158, 11, 0.04);
+}
+[data-theme="dark"] .sal-item-pending {
+  background: rgba(245, 158, 11, 0.06);
+}
+
+/* Badge "Aguardando" */
+.sal-pending-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px;
+  border-radius: 99px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  background: rgba(245, 158, 11, 0.18);
+  color: #f59e0b;
+  white-space: nowrap;
+}
+
+/* Valor de mensalidade pendente (cinza) */
+.trans-amount.sal-amount-pending {
+  color: var(--text-muted);
+  opacity: 0.7;
+}
+
+/* Botão aprovar */
+.btn-approve-salary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+  cursor: pointer;
+  transition: background 0.18s, transform 0.15s;
+  flex-shrink: 0;
+}
+.btn-approve-salary:hover {
+  background: rgba(34, 197, 94, 0.28);
+  transform: scale(1.1);
+}
+
+/* Botão rejeitar */
+.btn-reject-salary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  cursor: pointer;
+  transition: background 0.18s, transform 0.15s;
+  flex-shrink: 0;
+}
+.btn-reject-salary:hover {
+  background: rgba(239, 68, 68, 0.28);
+  transform: scale(1.1);
+}
+
+/* Badge de pendências no botão da nav */
+.nav-pending-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 99px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 0.6rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  animation: badge-pop 0.3s cubic-bezier(.22,.68,0,1.4) forwards;
+}
+
+@keyframes badge-pop {
+  from { transform: scale(0); }
+  to   { transform: scale(1); }
+}

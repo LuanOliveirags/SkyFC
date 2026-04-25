@@ -92,7 +92,7 @@ export async function registerUser(fullName, email, login, password, teamId, rol
   const loginCheck = await db.collection('users').where('login', '==', login.toLowerCase()).get();
   if (!loginCheck.empty) throw new Error('Esse login já está em uso.');
 
-  const safeRole = ['admin', 'comissao', 'jogador'].includes(role) ? role : 'jogador';
+  const safeRole = ['admin', 'comissao', 'financeiro', 'jogador'].includes(role) ? role : 'jogador';
 
   const credential = await auth.createUserWithEmailAndPassword(email, password);
   const uid = credential.user.uid;
@@ -191,7 +191,7 @@ export async function loadFamilyMembers() {
 // ===== POPULAR SELECTS DE MEMBROS =====
 export function populateMemberSelects() {
   const members = state.players || [];
-  const comissao = members.filter(m => ['superadmin', 'admin', 'comissao'].includes(m.role));
+  const comissao = members.filter(m => ['superadmin', 'admin', 'comissao', 'financeiro'].includes(m.role));
   const selects = [
     { el: document.getElementById('tranResponsible'), members: comissao, placeholder: 'Selecione...', addAmbos: true },
     { el: document.getElementById('debtResponsible'), members, placeholder: null, addAmbos: true },

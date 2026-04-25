@@ -23,17 +23,19 @@ export const FCM_SERVER_KEY = 'YOUR_SERVER_KEY_HERE'; // Firebase Console → Cl
 
 // ===== PERFIS DE USUÁRIO =====
 export const ROLES = {
-  SUPERADMIN: 'superadmin',  // Apenas o dev (Luan Gs)
-  ADMIN:      'admin',
-  COMISSAO:   'comissao',
-  JOGADOR:    'jogador'
+  SUPERADMIN:  'superadmin',  // Apenas o dev (Luan Gs)
+  ADMIN:       'admin',
+  COMISSAO:    'comissao',
+  FINANCEIRO:  'financeiro', // Responsável financeiro (Leandro)
+  JOGADOR:     'jogador'
 };
 
 export const ROLE_LABELS = {
-  superadmin: 'Super Admin',
-  admin:      'Administrador',
-  comissao:   'Comissão Técnica',
-  jogador:    'Jogador'
+  superadmin:  'Super Admin',
+  admin:       'Administrador',
+  comissao:    'Comissão Técnica',
+  financeiro:  'Financeiro',
+  jogador:     'Jogador'
 };
 
 // ===== CATEGORIAS FINANCEIRAS DO TIME =====

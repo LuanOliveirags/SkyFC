@@ -2,13 +2,13 @@
 // NAVIGATION.JS — Navegação, scrollers, tema, eventos de UI
 // ============================================================
 
-import { state, isSuperAdmin, isAdmin, isComissao, getFamilyId, getTeamId } from '../../../app/state/store.js';
+import { state, isSuperAdmin, isAdmin, isComissao, isFinanceiro, getFamilyId, getTeamId } from '../../../app/state/store.js';
 import { showAlert, toDateStr } from '../../utils/helpers.js';
 import { firebaseReady, saveDataToStorage, loadDataFromStorage, exportData, importData, syncData, clearCache, syncAllToFirebase, allowRefresh } from '../../../app/providers/firebase-provider.js';
 import { uploadAvatar, loginUser, registerUser, changeUserPassword, savePhoneNumber, saveRecado, loadUsersList, saveUserEdit, loadFamiliesListUI, createFamily, populateFamilySelects, loadFamily, applyUserToUI, logout } from '../../../app/providers/auth-provider.js';
 import { addTransaction, updateTransactionHistory } from '../../../modules/transactions/transactions.service.js';
 import { addDebt, resetDebtModal, setupDebtTypeListeners, setupDebtFilterListeners, updateDebtsList } from '../../../modules/debts/debts.js';
-import { addSalary, setupDeductionListeners, updateSalaryDisplay, updateSalaryHistory } from '../../../modules/salaries/salaries.js';
+import { addSalary, setupDeductionListeners, updateSalaryDisplay, updateSalaryHistory, updateMensalidadeBadge } from '../../../modules/salaries/salaries.js';
 import { updateDashboard, updateCharts, setupKpiClickListeners } from '../../../modules/dashboard/dashboard.js';
 import { openChoresTab, setupChoresListeners } from '../../../modules/chores/chores.js';
 import { openShoppingPanel, setupShoppingListeners } from '../../../modules/shopping/shopping.js';

@@ -33,9 +33,14 @@ export function isAdmin() {
   return role === 'admin' || role === 'superadmin';
 }
 
+export function isFinanceiro() {
+  const role = state.currentUser?.role;
+  return role === 'financeiro' || role === 'superadmin';
+}
+
 export function isComissao() {
   const role = state.currentUser?.role;
-  return role === 'comissao' || role === 'admin' || role === 'superadmin';
+  return role === 'comissao' || role === 'financeiro' || role === 'admin' || role === 'superadmin';
 }
 
 export function isJogador() {
