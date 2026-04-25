@@ -1,112 +1,207 @@
-/* SALARIES.CSS — Receitas do time (Mensalidades + Patrocínios) */
+/* SALARIES.CSS — Receitas do time */
 
 /* ═══════════════════════════════
    CARDS DE RESUMO DO MÊS
 ═══════════════════════════════ */
-.salary-summary-cards {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
+.sal-summary-section {
   padding: 16px 16px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
-@media (max-width: 480px) {
-  .salary-summary-cards {
-    grid-template-columns: 1fr 1fr;
-  }
-  .sal-sum-total { grid-column: span 2; }
+.sal-summary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
 }
-.sal-sum-card {
+
+/* Card base */
+.sal-card {
+  position: relative;
+  border-radius: var(--r-xl);
+  border: 1.5px solid var(--border);
+  background: var(--bg-card);
+  box-shadow: var(--shadow-xs);
+  overflow: hidden;
+  transition: transform 0.22s cubic-bezier(.22,.68,0,1.2), box-shadow 0.22s ease;
+}
+.sal-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+}
+.sal-card:active { transform: scale(0.97); }
+.sal-card-inner {
+  position: relative;
+  z-index: 1;
+  padding: 16px 16px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* Top row: icon + badge */
+.sal-card-top {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 14px 16px;
-  background: var(--bg-card, #fff);
-  border-radius: var(--r-lg, 14px);
-  border: 1px solid var(--border, #e5e7eb);
-  border-left-width: 4px;
-  box-shadow: var(--shadow-xs, 0 1px 3px rgba(0,0,0,0.06));
-  transition: box-shadow 0.2s;
-}
-.sal-sum-card:hover {
-  box-shadow: var(--shadow-sm, 0 2px 8px rgba(0,0,0,0.1));
+  justify-content: space-between;
+  margin-bottom: 14px;
 }
 
-/* Mensalidades — verde */
-.sal-sum--mensalidades {
-  border-left-color: #22c55e;
-  background: linear-gradient(135deg, rgba(34,197,94,0.06) 0%, var(--bg-card,#fff) 60%);
-}
-.sal-sum--mensalidades .sal-sum-icon {
-  background: rgba(34,197,94,0.15);
-  color: #16a34a;
-}
-.sal-sum--mensalidades .sal-sum-value { color: #16a34a; }
-
-/* Patrocínios — âmbar */
-.sal-sum--patrocinios {
-  border-left-color: #eab308;
-  background: linear-gradient(135deg, rgba(234,179,8,0.07) 0%, var(--bg-card,#fff) 60%);
-}
-.sal-sum--patrocinios .sal-sum-icon {
-  background: rgba(234,179,8,0.15);
-  color: #ca8a04;
-}
-.sal-sum--patrocinios .sal-sum-value { color: #ca8a04; }
-
-/* Total — azul */
-.sal-sum--total {
-  border-left-color: var(--primary, #3d6a8e);
-  background: linear-gradient(135deg, rgba(61,106,142,0.07) 0%, var(--bg-card,#fff) 60%);
-}
-.sal-sum--total .sal-sum-icon {
-  background: rgba(61,106,142,0.15);
-  color: var(--primary, #3d6a8e);
-}
-.sal-sum--total .sal-sum-value { color: var(--primary, #3d6a8e); }
-
-/* Dark theme overrides */
-[data-theme="dark"] .sal-sum-card {
-  background: var(--surface, #1a2535);
-  border-color: rgba(255,255,255,0.08);
-}
-[data-theme="dark"] .sal-sum--mensalidades { background: linear-gradient(135deg, rgba(34,197,94,0.1) 0%, var(--surface,#1a2535) 60%); }
-[data-theme="dark"] .sal-sum--patrocinios  { background: linear-gradient(135deg, rgba(234,179,8,0.1) 0%, var(--surface,#1a2535) 60%); }
-[data-theme="dark"] .sal-sum--total        { background: linear-gradient(135deg, rgba(61,106,142,0.15) 0%, var(--surface,#1a2535) 60%); }
-[data-theme="dark"] .sal-sum--mensalidades .sal-sum-value { color: #4ade80; }
-[data-theme="dark"] .sal-sum--patrocinios  .sal-sum-value { color: #facc15; }
-[data-theme="dark"] .sal-sum--total        .sal-sum-value { color: #7eb8e0; }
-
-.sal-sum-icon {
-  width: 42px;
-  height: 42px;
+/* Ícone circular com gradiente */
+.sal-card-icon {
+  width: 44px; height: 44px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.25rem;
+  font-size: 1.0625rem;
   flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.14);
 }
-.sal-sum-info {
+.sal-card-icon--mensalidades    { background: linear-gradient(135deg, #22c55e, #16a34a); color: #fff; }
+.sal-card-icon--vale-churrasco  { background: linear-gradient(135deg, #fb923c, #ea580c); color: #fff; }
+.sal-card-icon--festivais       { background: linear-gradient(135deg, #a78bfa, #7c3aed); color: #fff; }
+.sal-card-icon--patrocinios     { background: linear-gradient(135deg, #fcd34d, #d97706); color: #fff; }
+
+/* Badge */
+.sal-card-badge {
+  font-size: 0.6rem;
+  font-weight: var(--fw-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  padding: 3px 8px;
+  border-radius: var(--r-full);
+  line-height: 1;
+}
+.sal-card-badge--mensalidades    { background: rgba(34,197,94,0.12);  color: #16a34a; border: 1px solid rgba(34,197,94,0.25); }
+.sal-card-badge--vale-churrasco  { background: rgba(249,115,22,0.12); color: #ea580c; border: 1px solid rgba(249,115,22,0.25); }
+.sal-card-badge--festivais       { background: rgba(139,92,246,0.12); color: #7c3aed; border: 1px solid rgba(139,92,246,0.25); }
+.sal-card-badge--patrocinios     { background: rgba(217,119,6,0.12);  color: #b45309; border: 1px solid rgba(217,119,6,0.25); }
+
+/* Valor */
+.sal-card-value {
+  font-size: 1.2rem;
+  font-weight: var(--fw-black);
+  color: var(--text-primary);
+  letter-spacing: -0.03em;
+  line-height: 1;
+  margin-bottom: 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sal-card--mensalidades  .sal-card-value { color: #16a34a; }
+.sal-card--vale-churrasco .sal-card-value { color: #ea580c; }
+.sal-card--festivais     .sal-card-value { color: #7c3aed; }
+.sal-card--patrocinios   .sal-card-value { color: #b45309; }
+
+/* Footer: label + sub */
+.sal-card-footer {
   display: flex;
   flex-direction: column;
-  min-width: 0;
+  gap: 1px;
 }
-.sal-sum-label {
-  font-size: 0.68rem;
+.sal-card-label {
+  font-size: 0.72rem;
+  font-weight: var(--fw-semi);
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sal-card-sub {
+  font-size: 0.65rem;
   color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.6px;
-  font-weight: 600;
   white-space: nowrap;
 }
-.sal-sum-value {
-  font-size: 1.05rem;
-  font-weight: 700;
-  line-height: 1.3;
+
+/* Glow blob */
+.sal-card-glow {
+  position: absolute;
+  bottom: -28px; right: -28px;
+  width: 90px; height: 90px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.5;
+  transition: opacity 0.3s;
 }
-.sal-sum-sub {
-  font-size: 0.72rem;
-  color: var(--text-muted);
+.sal-card:hover .sal-card-glow { opacity: 0.9; }
+.sal-card-glow--mensalidades    { background: radial-gradient(circle, rgba(34,197,94,0.28), transparent 70%); }
+.sal-card-glow--vale-churrasco  { background: radial-gradient(circle, rgba(249,115,22,0.24), transparent 70%); }
+.sal-card-glow--festivais       { background: radial-gradient(circle, rgba(139,92,246,0.24), transparent 70%); }
+.sal-card-glow--patrocinios     { background: radial-gradient(circle, rgba(217,119,6,0.24), transparent 70%); }
+
+/* Fundos por tipo */
+.sal-card--mensalidades    { background: linear-gradient(150deg, rgba(34,197,94,0.05) 0%, var(--bg-card,#fff) 55%); border-color: rgba(34,197,94,0.2); }
+.sal-card--vale-churrasco  { background: linear-gradient(150deg, rgba(249,115,22,0.06) 0%, var(--bg-card,#fff) 55%); border-color: rgba(249,115,22,0.2); }
+.sal-card--festivais       { background: linear-gradient(150deg, rgba(139,92,246,0.06) 0%, var(--bg-card,#fff) 55%); border-color: rgba(139,92,246,0.2); }
+.sal-card--patrocinios     { background: linear-gradient(150deg, rgba(217,119,6,0.06) 0%, var(--bg-card,#fff) 55%); border-color: rgba(217,119,6,0.2); }
+
+/* Dark mode */
+[data-theme="dark"] .sal-card { border-color: rgba(255,255,255,0.07); }
+[data-theme="dark"] .sal-card--mensalidades   { background: linear-gradient(150deg, rgba(34,197,94,0.1) 0%, var(--surface,#1a2535) 55%); border-color: rgba(34,197,94,0.18); }
+[data-theme="dark"] .sal-card--vale-churrasco { background: linear-gradient(150deg, rgba(249,115,22,0.1) 0%, var(--surface,#1a2535) 55%); border-color: rgba(249,115,22,0.18); }
+[data-theme="dark"] .sal-card--festivais      { background: linear-gradient(150deg, rgba(139,92,246,0.1) 0%, var(--surface,#1a2535) 55%); border-color: rgba(139,92,246,0.18); }
+[data-theme="dark"] .sal-card--patrocinios    { background: linear-gradient(150deg, rgba(217,119,6,0.1) 0%, var(--surface,#1a2535) 55%); border-color: rgba(217,119,6,0.18); }
+[data-theme="dark"] .sal-card--mensalidades  .sal-card-value { color: #4ade80; }
+[data-theme="dark"] .sal-card--vale-churrasco .sal-card-value { color: #fb923c; }
+[data-theme="dark"] .sal-card--festivais     .sal-card-value { color: #c084fc; }
+[data-theme="dark"] .sal-card--patrocinios   .sal-card-value { color: #facc15; }
+
+/* ── Total do Mês ── */
+.sal-total-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px;
+  background: var(--grad-primary);
+  border-radius: var(--r-xl);
+  box-shadow: var(--shadow-brand);
+  position: relative;
+  overflow: hidden;
+}
+.sal-total-bar::after {
+  content: '';
+  position: absolute;
+  right: -20px; top: -20px;
+  width: 90px; height: 90px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.06);
+  pointer-events: none;
+}
+.sal-total-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.sal-total-icon {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  color: #fff;
+  flex-shrink: 0;
+}
+.sal-total-label {
+  font-size: 0.82rem;
+  font-weight: var(--fw-semi);
+  color: rgba(255,255,255,0.8);
+}
+.sal-total-sub {
+  font-size: 0.68rem;
+  color: rgba(255,255,255,0.5);
+  margin-top: 1px;
+  min-height: 1em;
+}
+.sal-total-value {
+  font-size: 1.5rem;
+  font-weight: var(--fw-black);
+  color: #fff;
+  letter-spacing: -0.03em;
 }
 
 /* Badge tipo na listagem */
@@ -117,18 +212,20 @@
   font-size: 0.7rem;
   font-weight: 600;
 }
-.sal-type-mensalidade { background: rgba(34,197,94,0.18); color: #22c55e; }
-.sal-type-patrocinio  { background: rgba(234,179,8,0.18);  color: #eab308; }
-.sal-type-outro       { background: rgba(148,163,184,0.15); color: #94a3b8; }
+.sal-type-mensalidade    { background: rgba(34,197,94,0.18);  color: #22c55e; }
+.sal-type-vale_churrasco { background: rgba(249,115,22,0.18); color: #f97316; }
+.sal-type-festivais      { background: rgba(168,85,247,0.18); color: #a855f7; }
+.sal-type-patrocinio     { background: rgba(234,179,8,0.18);  color: #eab308; }
+.sal-type-outro          { background: rgba(148,163,184,0.15); color: #94a3b8; }
 
 /* ═══════════════════════════════
    SALARY / FINANCEIRO SECTION
 ═══════════════════════════════ */
 
-/* Salary Type Toggle — 3 botões */
+/* Salary Type Toggle — 4 botões (2x2) com cores individuais */
 .salary-type-toggle {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr;
   gap: 8px;
   margin-top: 4px;
 }
@@ -137,7 +234,7 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding: 9px 8px;
+  padding: 10px 8px;
   border-radius: var(--r-md);
   border: 2px solid var(--border);
   background: var(--bg-card);
@@ -147,17 +244,20 @@
   cursor: pointer;
   transition: all 0.2s ease;
 }
-.salary-type-btn:hover { border-color: var(--primary); }
+.salary-type-btn:hover { border-color: var(--primary); color: var(--primary); }
 .salary-type-btn.active {
   border-color: var(--primary);
   background: rgba(var(--primary-rgb), 0.08);
   color: var(--primary);
 }
-#btnVR.active {
-  border-color: #8BC34A;
-  background: rgba(139, 195, 74, 0.08);
-  color: #689F38;
-}
+/* Cores por tipo quando ativo */
+.salary-type-btn--churrasco.active  { border-color: #ea580c; background: rgba(249,115,22,0.08); color: #ea580c; }
+.salary-type-btn--festival.active   { border-color: #7c3aed; background: rgba(139,92,246,0.08); color: #7c3aed; }
+.salary-type-btn--patrocinio.active { border-color: #b45309; background: rgba(217,119,6,0.08); color: #b45309; }
+/* Hover colorido */
+.salary-type-btn--churrasco:hover  { border-color: #ea580c; color: #ea580c; }
+.salary-type-btn--festival:hover   { border-color: #7c3aed; color: #7c3aed; }
+.salary-type-btn--patrocinio:hover { border-color: #b45309; color: #b45309; }
 
 /* VR Badge in salary history */
 .vr-badge {

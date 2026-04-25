@@ -22,6 +22,7 @@ export function addTransaction(e) {
     amount: parseFloat(document.getElementById('tranAmount').value),
     category: document.getElementById('tranCategory').value,
     responsible: document.getElementById('tranResponsible').value,
+    caixa: document.getElementById('tranCaixa')?.value || 'mensalidade',
     date: document.getElementById('tranDate').value,
     description: document.getElementById('tranDescription').value,
     paymentMethod: document.getElementById('tranPaymentMethod')?.value || 'dinheiro',

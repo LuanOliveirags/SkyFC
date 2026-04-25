@@ -121,6 +121,29 @@ export function updateDashboard() {
   const totalPlayers = (state.players || state.familyMembers || []).length;
   const pendentes = totalPlayers > 0 ? totalPlayers - playersPaid : 0;
 
+  // ── Saldos das 4 Caixas ──
+  const CAIXAS = ['mensalidade', 'vale_churrasco', 'festivais', 'patrocinio'];
+  const caixaBalances = {};
+  CAIXAS.forEach(c => {
+    const income = monthSalaries.filter(s => s.salaryType === c).reduce((sum, s) => sum + s.amount, 0)
+      + monthTransactions.filter(t => t.type === 'entrada' && t.caixa === c).reduce((sum, t) => sum + t.amount, 0);
+    const expense = monthTransactions.filter(t => t.type === 'saida' && t.caixa === c).reduce((sum, t) => sum + t.amount, 0);
+    caixaBalances[c] = income - expense;
+  });
+  const caixaIds = {
+    mensalidade:    'caixaMensalidadeVal',
+    vale_churrasco: 'caixaValeChurrascoVal',
+    festivais:      'caixaFestivaisVal',
+    patrocinio:     'caixaPatrociniosVal'
+  };
+  CAIXAS.forEach(c => {
+    const elCaixa = document.getElementById(caixaIds[c]);
+    if (elCaixa) {
+      elCaixa.textContent = formatCurrency(caixaBalances[c]);
+      elCaixa.className = 'caixa-value ' + (caixaBalances[c] >= 0 ? 'caixa-pos' : 'caixa-neg');
+    }
+  });
+
   const el = (id, val) => { const e = document.getElementById(id); if (e) e.textContent = val; };
 
   // === DASHBOARD ÚNICO (foco clube) ===
@@ -233,8 +256,8 @@ function createBalanceSparkline(transactions) {
   ctx.style.display = '';
 
   const isVR = dashboardMode === 'vr';
-  const sparkColor = isVR ? '#689F38' : '#3D6A8E';
-  const sparkBg = isVR ? 'rgba(139,195,74,0.10)' : 'rgba(61, 106, 142,0.10)';
+  const sparkColor = isVR ? '#689F38' : 'rgba(255,255,255,0.85)';
+  const sparkBg = isVR ? 'rgba(139,195,74,0.10)' : 'rgba(255,255,255,0.10)';
 
   return new Chart(ctx, {
     type: 'line',

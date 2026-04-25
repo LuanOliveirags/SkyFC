@@ -343,6 +343,67 @@
   border-radius: 50%;
   background: rgba(var(--primary-rgb), 0.06);
 }
+
+/* Premium variant */
+.balance-card--premium {
+  background: linear-gradient(145deg, #1a3a5c 0%, #2B4D68 45%, #3D6A8E 100%);
+  box-shadow: 0 12px 40px rgba(26,58,92,0.40);
+  border: none;
+  padding: 22px 22px 14px;
+}
+.balance-card--premium::before {
+  background: rgba(201,168,76,0.10);
+  width: 200px; height: 200px;
+  top: -60px; right: -60px;
+}
+.balance-card--premium::after {
+  content: '';
+  position: absolute;
+  bottom: -50px; left: -30px;
+  width: 140px; height: 140px;
+  border-radius: 50%;
+  background: rgba(76,201,240,0.07);
+  pointer-events: none;
+}
+.balance-card-top { position: relative; z-index: 1; }
+.balance-card-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.balance-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  font-weight: var(--fw-semi);
+  color: rgba(255,255,255,0.7);
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.14);
+  padding: 4px 10px;
+  border-radius: var(--r-full);
+  letter-spacing: 0.03em;
+  backdrop-filter: blur(6px);
+}
+.balance-pill i { font-size: 0.65rem; color: var(--accent-gold); }
+.balance-card--premium .balance-amount {
+  font-size: 2.5rem;
+  font-weight: var(--fw-black);
+  color: #fff;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.balance-sub {
+  font-size: 0.7rem;
+  color: rgba(255,255,255,0.45);
+  font-weight: var(--fw-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 18px;
+}
+.balance-card--premium .sparkline-x-labels span { color: rgba(255,255,255,0.35); }
 .balance-label {
   font-size: 0.8125rem;
   color: var(--text-muted);
@@ -377,12 +438,158 @@
 .values-hidden .ie-value,
 .values-hidden .kpi-mini-val,
 .values-hidden .kpi-mini-sub,
-.values-hidden .skyfc-stat-val {
+.values-hidden .skyfc-stat-val,
+.values-hidden .caixa-value,
+.values-hidden .balance-sub {
   filter: blur(10px);
   user-select: none;
   pointer-events: none;
   transition: filter 0.25s ease;
 }
+
+/* ═══════════════════════════════
+   4 CAIXAS DO CLUBE
+═══════════════════════════════ */
+.caixas-section {
+  padding: 0 16px 16px;
+}
+.caixas-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.caixas-section-title {
+  font-size: 0.95rem;
+  font-weight: var(--fw-bold);
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+.caixas-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+/* Card base */
+.caixa-card {
+  position: relative;
+  border-radius: var(--r-xl);
+  border: 1.5px solid var(--border);
+  background: var(--bg-card);
+  box-shadow: var(--shadow-xs);
+  overflow: hidden;
+  cursor: default;
+  transition: transform 0.22s cubic-bezier(.22,.68,0,1.2), box-shadow 0.22s ease;
+}
+.caixa-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+}
+.caixa-card:active { transform: scale(0.97); }
+.caixa-card-inner {
+  position: relative;
+  z-index: 1;
+  padding: 16px 16px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* Top row: icon + badge */
+.caixa-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+/* Icon circle */
+.caixa-icon-wrap {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.0625rem;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+}
+.caixa-icon-mensalidade    { background: linear-gradient(135deg, #22c55e, #16a34a); color: #fff; }
+.caixa-icon-vale-churrasco { background: linear-gradient(135deg, #fb923c, #ea580c); color: #fff; }
+.caixa-icon-festivais      { background: linear-gradient(135deg, #a78bfa, #7c3aed); color: #fff; }
+.caixa-icon-patrocinios    { background: linear-gradient(135deg, #fcd34d, #d97706); color: #fff; }
+
+/* Badge tipo */
+.caixa-badge {
+  font-size: 0.6rem;
+  font-weight: var(--fw-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  padding: 3px 8px;
+  border-radius: var(--r-full);
+  line-height: 1;
+}
+.caixa-badge-mensalidade    { background: rgba(34,197,94,0.12);  color: #16a34a; border: 1px solid rgba(34,197,94,0.25); }
+.caixa-badge-vale-churrasco { background: rgba(249,115,22,0.12); color: #ea580c; border: 1px solid rgba(249,115,22,0.25); }
+.caixa-badge-festivais      { background: rgba(139,92,246,0.12); color: #7c3aed; border: 1px solid rgba(139,92,246,0.25); }
+.caixa-badge-patrocinios    { background: rgba(217,119,6,0.12);  color: #b45309; border: 1px solid rgba(217,119,6,0.25); }
+
+/* Value */
+.caixa-value {
+  font-size: 1.2rem;
+  font-weight: var(--fw-black);
+  color: var(--text-primary);
+  letter-spacing: -0.03em;
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 3px;
+}
+.caixa-pos { color: #16a34a !important; }
+.caixa-neg { color: var(--expense, #EF233C) !important; }
+
+/* Label */
+.caixa-label {
+  font-size: 0.72rem;
+  font-weight: var(--fw-medium);
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Glow blob de fundo */
+.caixa-glow {
+  position: absolute;
+  bottom: -28px; right: -28px;
+  width: 90px; height: 90px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.55;
+  transition: opacity 0.3s;
+}
+.caixa-card:hover .caixa-glow { opacity: 0.85; }
+.caixa-glow-mensalidade    { background: radial-gradient(circle, rgba(34,197,94,0.25), transparent 70%); }
+.caixa-glow-vale-churrasco { background: radial-gradient(circle, rgba(249,115,22,0.22), transparent 70%); }
+.caixa-glow-festivais      { background: radial-gradient(circle, rgba(139,92,246,0.22), transparent 70%); }
+.caixa-glow-patrocinios    { background: radial-gradient(circle, rgba(217,119,6,0.22), transparent 70%); }
+
+/* Backgrounds por caixa */
+.caixa-mensalidade    { background: linear-gradient(150deg, rgba(34,197,94,0.05) 0%, var(--bg-card,#fff) 50%); border-color: rgba(34,197,94,0.2); }
+.caixa-vale-churrasco { background: linear-gradient(150deg, rgba(249,115,22,0.06) 0%, var(--bg-card,#fff) 50%); border-color: rgba(249,115,22,0.2); }
+.caixa-festivais      { background: linear-gradient(150deg, rgba(139,92,246,0.06) 0%, var(--bg-card,#fff) 50%); border-color: rgba(139,92,246,0.2); }
+.caixa-patrocinios    { background: linear-gradient(150deg, rgba(217,119,6,0.06) 0%, var(--bg-card,#fff) 50%);  border-color: rgba(217,119,6,0.2); }
+
+/* Dark mode */
+[data-theme="dark"] .caixa-card           { border-color: rgba(255,255,255,0.07); }
+[data-theme="dark"] .caixa-mensalidade    { background: linear-gradient(150deg, rgba(34,197,94,0.1) 0%, var(--surface,#1a2535) 50%); border-color: rgba(34,197,94,0.18); }
+[data-theme="dark"] .caixa-vale-churrasco { background: linear-gradient(150deg, rgba(249,115,22,0.1) 0%, var(--surface,#1a2535) 50%); border-color: rgba(249,115,22,0.18); }
+[data-theme="dark"] .caixa-festivais      { background: linear-gradient(150deg, rgba(139,92,246,0.1) 0%, var(--surface,#1a2535) 50%); border-color: rgba(139,92,246,0.18); }
+[data-theme="dark"] .caixa-patrocinios    { background: linear-gradient(150deg, rgba(217,119,6,0.1) 0%, var(--surface,#1a2535) 50%);  border-color: rgba(217,119,6,0.18); }
+[data-theme="dark"] .caixa-pos { color: #4ade80 !important; }
 
 /* Income / Expense Cards */
 .ie-grid {

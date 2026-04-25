@@ -8,30 +8,89 @@
     </div>
 
     <!-- Resumo rápido -->
-    <div class="salary-summary-cards">
-        <div class="sal-sum-card sal-sum--mensalidades">
-            <div class="sal-sum-icon">💳</div>
-            <div class="sal-sum-info">
-                <span class="sal-sum-label">Mensalidades</span>
-                <span class="sal-sum-value" id="sumMensalidades">R$ 0,00</span>
-                <span class="sal-sum-sub" id="sumMensalidadesCount">0 recebidas</span>
+    <div class="sal-summary-section">
+        <div class="sal-summary-grid">
+
+            <div class="sal-card sal-card--mensalidades">
+                <div class="sal-card-inner">
+                    <div class="sal-card-top">
+                        <div class="sal-card-icon sal-card-icon--mensalidades">
+                            <i class="fa-solid fa-credit-card"></i>
+                        </div>
+                        <span class="sal-card-badge sal-card-badge--mensalidades">Mensal</span>
+                    </div>
+                    <span class="sal-card-value" id="sumMensalidades">R$ 0,00</span>
+                    <div class="sal-card-footer">
+                        <span class="sal-card-label">Mensalidades</span>
+                        <span class="sal-card-sub" id="sumMensalidadesCount">0 recebidas</span>
+                    </div>
+                </div>
+                <div class="sal-card-glow sal-card-glow--mensalidades"></div>
             </div>
+
+            <div class="sal-card sal-card--vale-churrasco">
+                <div class="sal-card-inner">
+                    <div class="sal-card-top">
+                        <div class="sal-card-icon sal-card-icon--vale-churrasco">
+                            <i class="fa-solid fa-fire-burner"></i>
+                        </div>
+                        <span class="sal-card-badge sal-card-badge--vale-churrasco">Evento</span>
+                    </div>
+                    <span class="sal-card-value" id="sumValeChurrasco">R$ 0,00</span>
+                    <div class="sal-card-footer">
+                        <span class="sal-card-label">Vale Churrasco</span>
+                        <span class="sal-card-sub" id="sumValeChurrascoCount">0 entradas</span>
+                    </div>
+                </div>
+                <div class="sal-card-glow sal-card-glow--vale-churrasco"></div>
+            </div>
+
+            <div class="sal-card sal-card--festivais">
+                <div class="sal-card-inner">
+                    <div class="sal-card-top">
+                        <div class="sal-card-icon sal-card-icon--festivais">
+                            <i class="fa-solid fa-trophy"></i>
+                        </div>
+                        <span class="sal-card-badge sal-card-badge--festivais">Festival</span>
+                    </div>
+                    <span class="sal-card-value" id="sumFestivais">R$ 0,00</span>
+                    <div class="sal-card-footer">
+                        <span class="sal-card-label">Festivais</span>
+                        <span class="sal-card-sub" id="sumFestivaisCount">0 entradas</span>
+                    </div>
+                </div>
+                <div class="sal-card-glow sal-card-glow--festivais"></div>
+            </div>
+
+            <div class="sal-card sal-card--patrocinios">
+                <div class="sal-card-inner">
+                    <div class="sal-card-top">
+                        <div class="sal-card-icon sal-card-icon--patrocinios">
+                            <i class="fa-solid fa-handshake"></i>
+                        </div>
+                        <span class="sal-card-badge sal-card-badge--patrocinios">Parceria</span>
+                    </div>
+                    <span class="sal-card-value" id="sumPatrocinios">R$ 0,00</span>
+                    <div class="sal-card-footer">
+                        <span class="sal-card-label">Patrocínios</span>
+                        <span class="sal-card-sub" id="sumPatrociniosCount">0 entradas</span>
+                    </div>
+                </div>
+                <div class="sal-card-glow sal-card-glow--patrocinios"></div>
+            </div>
+
         </div>
-        <div class="sal-sum-card sal-sum--patrocinios">
-            <div class="sal-sum-icon">🏅</div>
-            <div class="sal-sum-info">
-                <span class="sal-sum-label">Patrocínios</span>
-                <span class="sal-sum-value" id="sumPatrocinios">R$ 0,00</span>
-                <span class="sal-sum-sub" id="sumPatrociniosCount">0 entradas</span>
+
+        <!-- Total do mês -->
+        <div class="sal-total-bar">
+            <div class="sal-total-left">
+                <div class="sal-total-icon"><i class="fa-solid fa-wallet"></i></div>
+                <div>
+                    <p class="sal-total-label">Total do mês</p>
+                    <p class="sal-total-sub" id="sumOtherCount"></p>
+                </div>
             </div>
-        </div>
-        <div class="sal-sum-card sal-sum--total">
-            <div class="sal-sum-icon">💵</div>
-            <div class="sal-sum-info">
-                <span class="sal-sum-label">Total do mês</span>
-                <span class="sal-sum-value" id="sumTotal">R$ 0,00</span>
-                <span class="sal-sum-sub" id="sumOtherCount"></span>
-            </div>
+            <span class="sal-total-value" id="sumTotal">R$ 0,00</span>
         </div>
     </div>
 
@@ -50,11 +109,14 @@
                         <button type="button" class="salary-type-btn active" data-type="mensalidade" id="btnMensalidade">
                             <i class="fa-solid fa-credit-card"></i> Mensalidade
                         </button>
-                        <button type="button" class="salary-type-btn" data-type="patrocinio" id="btnPatrocinio">
-                            <i class="fa-solid fa-medal"></i> Patrocínio
+                        <button type="button" class="salary-type-btn salary-type-btn--churrasco" data-type="vale_churrasco" id="btnValeChurrasco">
+                            <i class="fa-solid fa-fire-burner"></i> Vale Churrasco
                         </button>
-                        <button type="button" class="salary-type-btn" data-type="outro" id="btnOutro">
-                            <i class="fa-solid fa-ellipsis"></i> Outro
+                        <button type="button" class="salary-type-btn salary-type-btn--festival" data-type="festivais" id="btnFestivais">
+                            <i class="fa-solid fa-trophy"></i> Festivais
+                        </button>
+                        <button type="button" class="salary-type-btn salary-type-btn--patrocinio" data-type="patrocinio" id="btnPatrocinio">
+                            <i class="fa-solid fa-handshake"></i> Patrocínio
                         </button>
                     </div>
                     <input type="hidden" id="salaryType" value="mensalidade">

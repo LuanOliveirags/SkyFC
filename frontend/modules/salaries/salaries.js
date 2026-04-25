@@ -7,11 +7,14 @@ import { generateId, esc, formatCurrency, formatDate, showAlert, emptyState } fr
 import { saveDataToStorage, saveToFirebase, deleteFromFirebase } from '../../app/providers/firebase-provider.js';
 import { updateDashboard } from '../dashboard/dashboard.js';
 
-// ===== TIPO DE RECEITA =====
+// ===== TIPO DE RECEITA (Caixas do Clube) =====
 const TYPE_CONFIG = {
-  mensalidade: { icon: '💳', label: 'Mensalidade',  css: 'cat-entrada'   },
-  patrocinio:  { icon: '🏅', label: 'Patrocínio',   css: 'cat-patrocinio' },
-  outro:       { icon: '💵', label: 'Outro',         css: 'cat-outro'     }
+  mensalidade:    { icon: '💳', label: 'Mensalidade',    css: 'cat-entrada'        },
+  vale_churrasco: { icon: '🍖', label: 'Vale Churrasco', css: 'cat-vale-churrasco'  },
+  festivais:      { icon: '🎉', label: 'Festivais',      css: 'cat-festivais'       },
+  patrocinio:     { icon: '🏅', label: 'Patrocínio',     css: 'cat-patrocinio'      },
+  // legado
+  outro:          { icon: '💵', label: 'Outro',          css: 'cat-outro'           }
 };
 
 // ===== ADICIONAR RECEITA =====
@@ -48,6 +51,8 @@ export function addSalary(e) {
     teamId,
     familyId: teamId,
     createdAt: new Date().toISOString(),
+    createdBy: state.currentUser?.id || '',
+    createdByName: state.currentUser?.fullName || '',
     additions: [],
     deductions: [],
     totalAdditions: 0,
@@ -69,6 +74,19 @@ export function addSalary(e) {
 
 // ===== DELETAR =====
 export function deleteSalary(id) {
+  const entry = state.salaries.find(s => s.id === id);
+  if (!entry) return;
+
+  const role = state.currentUser?.role;
+  const uid  = state.currentUser?.id;
+  const isAdmin = role === 'superadmin' || role === 'admin';
+  const isOwner = entry.createdBy && entry.createdBy === uid;
+
+  if (!isAdmin && !isOwner) {
+    showAlert('Apenas o responsável ou um administrador pode excluir esta receita.', 'warning');
+    return;
+  }
+
   if (confirm('Deseja excluir esta receita?')) {
     state.salaries = state.salaries.filter(s => s.id !== id);
     saveDataToStorage();
@@ -114,9 +132,20 @@ function _setType(type) {
     if (sponsorGroup) sponsorGroup.style.display = '';
     if (sponsorInput) sponsorInput.required = false;
     const label = document.querySelector('label[for="sponsorName"]');
-    if (label) label.textContent = type === 'patrocinio' ? 'Patrocinador' : 'Origem';
-    const placeholder = type === 'patrocinio' ? 'Ex: Nike, Prefeitura...' : 'Ex: Rifa, Evento...';
-    if (sponsorInput) sponsorInput.placeholder = placeholder;
+    const labelMap = {
+      patrocinio:     'Patrocinador',
+      vale_churrasco: 'Organização / Origem',
+      festivais:      'Festival / Evento',
+      outro:          'Origem'
+    };
+    const placeholderMap = {
+      patrocinio:     'Ex: Nike, Prefeitura...',
+      vale_churrasco: 'Ex: Churrasco de Julho...',
+      festivais:      'Ex: Festival de Verao...',
+      outro:          'Ex: Rifa, Evento...'
+    };
+    if (label) label.textContent = labelMap[type] || 'Origem';
+    if (sponsorInput) sponsorInput.placeholder = placeholderMap[type] || 'Ex: Rifa...';
     if (amountInput) {
       if (amountInput.value === '25') amountInput.value = '';
       amountInput.readOnly = false;
@@ -191,21 +220,27 @@ function _updateSummaryCards() {
     return d.getFullYear() === year && d.getMonth() === month;
   });
 
-  const mensalidades = monthEntries.filter(s => s.salaryType === 'mensalidade');
-  const patrocinios  = monthEntries.filter(s => s.salaryType === 'patrocinio');
-  const outros       = monthEntries.filter(s => s.salaryType === 'outro');
-  const totalMens    = mensalidades.reduce((s, e) => s + (e.amount || 0), 0);
-  const totalPat     = patrocinios.reduce((s, e)  => s + (e.amount || 0), 0);
-  const totalOutros  = outros.reduce((s, e)       => s + (e.amount || 0), 0);
-  const total        = totalMens + totalPat + totalOutros;
+  const mensalidades    = monthEntries.filter(s => s.salaryType === 'mensalidade');
+  const valeChurrasco   = monthEntries.filter(s => s.salaryType === 'vale_churrasco');
+  const festivais       = monthEntries.filter(s => s.salaryType === 'festivais');
+  const patrocinios     = monthEntries.filter(s => s.salaryType === 'patrocinio');
+  const totalMens       = mensalidades.reduce((s, e)  => s + (e.amount || 0), 0);
+  const totalVale       = valeChurrasco.reduce((s, e) => s + (e.amount || 0), 0);
+  const totalFest       = festivais.reduce((s, e)     => s + (e.amount || 0), 0);
+  const totalPat        = patrocinios.reduce((s, e)   => s + (e.amount || 0), 0);
+  const total           = totalMens + totalVale + totalFest + totalPat;
 
   const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
-  set('sumMensalidades',      formatCurrency(totalMens));
-  set('sumMensalidadesCount', `${mensalidades.length} recebida${mensalidades.length !== 1 ? 's' : ''}`);
-  set('sumPatrocinios',      formatCurrency(totalPat));
-  set('sumPatrociniosCount', `${patrocinios.length} entrada${patrocinios.length !== 1 ? 's' : ''}`);
-  set('sumTotal',            formatCurrency(total));
-  set('sumOtherCount', outros.length ? `+ ${outros.length} outro${outros.length !== 1 ? 's' : ''}` : '');
+  set('sumMensalidades',       formatCurrency(totalMens));
+  set('sumMensalidadesCount',  `${mensalidades.length} recebida${mensalidades.length !== 1 ? 's' : ''}`);
+  set('sumValeChurrasco',      formatCurrency(totalVale));
+  set('sumValeChurrascoCount', `${valeChurrasco.length} entrada${valeChurrasco.length !== 1 ? 's' : ''}`);
+  set('sumFestivais',          formatCurrency(totalFest));
+  set('sumFestivaisCount',     `${festivais.length} entrada${festivais.length !== 1 ? 's' : ''}`);
+  set('sumPatrocinios',        formatCurrency(totalPat));
+  set('sumPatrociniosCount',   `${patrocinios.length} entrada${patrocinios.length !== 1 ? 's' : ''}`);
+  set('sumTotal',              formatCurrency(total));
+  set('sumOtherCount', '');
 }
 
 // ===== HISTÓRICO =====
@@ -217,6 +252,13 @@ export function updateSalaryHistory() {
   if (filterVal) filtered = filtered.filter(s => s.date?.startsWith(filterVal));
   if (!filtered.length) { container.innerHTML = emptyState('Nenhuma receita neste mês'); return; }
 
+  const currentRole = state.currentUser?.role;
+  const currentUid  = state.currentUser?.id;
+  const canDelete = (entry) => {
+    if (currentRole === 'superadmin' || currentRole === 'admin') return true;
+    return entry.createdBy && entry.createdBy === currentUid;
+  };
+
   const sorted = filtered.slice().sort((a, b) => (b.date || '').localeCompare(a.date || ''));
   container.innerHTML = sorted.map(s => {
     const cfg = TYPE_CONFIG[s.salaryType] || TYPE_CONFIG.outro;
@@ -225,6 +267,9 @@ export function updateSalaryHistory() {
       : s.salaryType === 'patrocinio'
         ? `Patrocínio — ${esc(s.person)}`
         : esc(s.person) || 'Receita';
+    const deleteBtn = canDelete(s)
+      ? `<button onclick="deleteSalary('${s.id}')" class="btn-delete" title="Excluir"><i class="fa-solid fa-trash"></i></button>`
+      : '';
     return `
     <div class="transaction-item">
       <div class="trans-icon-wrap ${cfg.css}">${cfg.icon}</div>
@@ -238,7 +283,7 @@ export function updateSalaryHistory() {
       </div>
       <div style="display:flex;align-items:center;gap:8px">
         <div class="trans-amount entrada">+${formatCurrency(s.amount)}</div>
-        <button onclick="deleteSalary('${s.id}')" class="btn-delete" title="Excluir"><i class="fa-solid fa-trash"></i></button>
+        ${deleteBtn}
       </div>
     </div>`;
   }).join('');

@@ -58,10 +58,14 @@
 
 
     <!-- Balance Card -->
-    <div class="balance-card">
-        <span class="balance-card-bg-icon" aria-hidden="true"><i class="fa-solid fa-futbol"></i></span>
-        <p class="balance-label">Caixa do Clube</p>
-        <h1 class="balance-amount" id="totalBalance">R$ 0,00</h1>
+    <div class="balance-card balance-card--premium">
+        <div class="balance-card-top">
+            <div class="balance-card-label-row">
+                <span class="balance-pill"><i class="fa-solid fa-vault"></i> Caixa do Clube</span>
+            </div>
+            <p class="balance-amount" id="totalBalance">R$ 0,00</p>
+            <p class="balance-sub">saldo geral do mês</p>
+        </div>
         <div class="sparkline-wrap">
             <canvas id="monthlyChart" class="sparkline-canvas"></canvas>
         </div>
@@ -69,6 +73,72 @@
             <span>1</span>
             <span>11</span>
             <span>21</span>
+        </div>
+    </div>
+
+    <!-- 4 Caixas do Clube -->
+    <div class="caixas-section">
+        <div class="caixas-section-header">
+            <h3 class="caixas-section-title">Caixas do Clube</h3>
+        </div>
+        <div class="caixas-grid">
+
+            <div class="caixa-card caixa-mensalidade">
+                <div class="caixa-card-inner">
+                    <div class="caixa-top-row">
+                        <div class="caixa-icon-wrap caixa-icon-mensalidade">
+                            <i class="fa-solid fa-credit-card"></i>
+                        </div>
+                        <span class="caixa-badge caixa-badge-mensalidade">Mensal</span>
+                    </div>
+                    <p class="caixa-value" id="caixaMensalidadeVal">R$ 0,00</p>
+                    <p class="caixa-label">Mensalidade</p>
+                </div>
+                <div class="caixa-glow caixa-glow-mensalidade"></div>
+            </div>
+
+            <div class="caixa-card caixa-vale-churrasco">
+                <div class="caixa-card-inner">
+                    <div class="caixa-top-row">
+                        <div class="caixa-icon-wrap caixa-icon-vale-churrasco">
+                            <i class="fa-solid fa-fire-burner"></i>
+                        </div>
+                        <span class="caixa-badge caixa-badge-vale-churrasco">Evento</span>
+                    </div>
+                    <p class="caixa-value" id="caixaValeChurrascoVal">R$ 0,00</p>
+                    <p class="caixa-label">Vale Churrasco</p>
+                </div>
+                <div class="caixa-glow caixa-glow-vale-churrasco"></div>
+            </div>
+
+            <div class="caixa-card caixa-festivais">
+                <div class="caixa-card-inner">
+                    <div class="caixa-top-row">
+                        <div class="caixa-icon-wrap caixa-icon-festivais">
+                            <i class="fa-solid fa-trophy"></i>
+                        </div>
+                        <span class="caixa-badge caixa-badge-festivais">Festival</span>
+                    </div>
+                    <p class="caixa-value" id="caixaFestivaisVal">R$ 0,00</p>
+                    <p class="caixa-label">Festivais</p>
+                </div>
+                <div class="caixa-glow caixa-glow-festivais"></div>
+            </div>
+
+            <div class="caixa-card caixa-patrocinios">
+                <div class="caixa-card-inner">
+                    <div class="caixa-top-row">
+                        <div class="caixa-icon-wrap caixa-icon-patrocinios">
+                            <i class="fa-solid fa-handshake"></i>
+                        </div>
+                        <span class="caixa-badge caixa-badge-patrocinios">Parceria</span>
+                    </div>
+                    <p class="caixa-value" id="caixaPatrociniosVal">R$ 0,00</p>
+                    <p class="caixa-label">Patrocínios</p>
+                </div>
+                <div class="caixa-glow caixa-glow-patrocinios"></div>
+            </div>
+
         </div>
     </div>
 
