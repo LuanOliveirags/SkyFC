@@ -151,15 +151,58 @@
         </div>
     </div>
 
-    <!-- Histórico -->
-    <div class="list-section">
-        <div class="list-section-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
-            <h3>Histórico de Mensalidades</h3>
-            <div class="salary-month-filter">
+    <!-- ═══ CONTROLE DE MENSALIDADES POR JOGADOR ═══ -->
+    <div class="mens-tracker" id="mensalidadesTracker">
+
+        <!-- Cabeçalho do painel -->
+        <div class="mens-tracker-header">
+            <div class="mens-tracker-title">
+                <i class="fa-solid fa-clipboard-list"></i>
+                <span>Controle de Mensalidades</span>
+            </div>
+            <div class="salary-month-filter mens-month-filter">
                 <select id="salaryMonthFilter" class="salary-month-select">
                     <!-- Populated by JS -->
                 </select>
             </div>
+        </div>
+
+        <!-- Banner de alerta (atrasos) -->
+        <div class="mens-alert-banner" id="mensAlertBanner" style="display:none">
+            <div class="mens-alert-left">
+                <div class="mens-alert-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                <div>
+                    <p class="mens-alert-title" id="mensAlertTitle">Jogadores em atraso</p>
+                    <p class="mens-alert-sub" id="mensAlertSub">Vencimento: dia 10</p>
+                </div>
+            </div>
+            <button class="mens-alert-toggle" onclick="window._mensToggleAlert()" aria-label="Expandir">
+                <i class="fa-solid fa-chevron-down" id="mensAlertChevron"></i>
+            </button>
+        </div>
+        <div class="mens-late-list" id="mensLateList" style="display:none"></div>
+
+        <!-- Barra de progresso -->
+        <div class="mens-progress-section">
+            <div class="mens-progress-bar-wrap">
+                <div class="mens-progress-bar">
+                    <div class="mens-progress-fill" id="mensProgressFill" style="width:0%"></div>
+                </div>
+            </div>
+            <span class="mens-progress-label" id="mensProgressLabel">0 / 0</span>
+        </div>
+
+        <!-- Lista de jogadores -->
+        <div id="mensalidadesList" class="mens-players-list">
+            <!-- Populated by JS -->
+        </div>
+
+    </div>
+
+    <!-- Histórico -->
+    <div class="list-section">
+        <div class="list-section-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+            <h3>Histórico de Receitas</h3>
         </div>
         <div id="salaryHistoryList" class="transactions-list"></div>
     </div>

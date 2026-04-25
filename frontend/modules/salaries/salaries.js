@@ -194,6 +194,8 @@ export function populateSalaryMonthFilter() {
     return `<option value="${key}">${months[parseInt(m)-1]} ${y}</option>`;
   }).join('');
   select.value = (prev && sorted.includes(prev)) ? prev : curKey;
+  // rebind para atualizar painel ao mudar mês
+  select.onchange = () => { updateSalaryDisplay(); };
 }
 
 // ===== ATUALIZAR DISPLAY =====
@@ -203,6 +205,7 @@ export function updateSalaryDisplay() {
   _updateSummaryCards();
   updateSalaryHistory();
   updateMensalidadeBadge();
+  updateMensalidadesPanel();
 }
 
 function _getFilteredMonthYear() {
@@ -315,7 +318,24 @@ export function updateMensalidadeBadge() {
   const badge = document.getElementById('mensalidadePendingBadge');
   if (!badge) return;
   if (!isFinanceiro()) { badge.style.display = 'none'; return; }
-  const count = getPendingMensalidadesCount();
+
+  // Pendentes de aprovação + atrasados no mês atual
+  const pendingApproval = getPendingMensalidadesCount();
+  const now = new Date();
+  const isAfterDue = now.getDate() > MENS_DIA_VEN;
+  let lateCount = 0;
+  if (isAfterDue) {
+    const key = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+    const players = (state.players || state.familyMembers || []).filter(p => p.isActive !== false && p.role !== 'superadmin');
+    const pagos = new Set(
+      state.salaries
+        .filter(s => s.salaryType === 'mensalidade' && s.date?.startsWith(key) && (s.status === 'approved' || !s.status))
+        .map(s => s.person)
+    );
+    lateCount = players.filter(p => !pagos.has(p.fullName || p.name || '')).length;
+  }
+
+  const count = pendingApproval + lateCount;
   badge.textContent = count > 9 ? '9+' : String(count);
   badge.style.display = count > 0 ? 'flex' : 'none';
 }
@@ -346,7 +366,233 @@ export function rejectSalary(id) {
   updateDashboard();
 }
 
+// ===== CONTROLE DE MENSALIDADES POR JOGADOR =====
+
+const MENS_VALOR   = 25;
+const MENS_DIA_VEN = 10;
+const MONTHS_PTBR  = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+
+/**
+ * Retorna o status de mensalidade de cada jogador para o mês/ano dado.
+ * Status: 'paga' | 'aguardando' | 'atrasada' | 'pendente'
+ */
+function _getMensalidadesStatus(year, month) {
+  const players = (state.players || state.familyMembers || []).filter(p => p.isActive !== false && p.role !== 'superadmin');
+  const key = `${year}-${String(month + 1).padStart(2, '0')}`;
+  const mensalidades = state.salaries.filter(s => s.salaryType === 'mensalidade' && s.date?.startsWith(key));
+
+  const today = new Date();
+  const isCurrentMonth = today.getFullYear() === year && today.getMonth() === month;
+  const isPastMonth    = today.getFullYear() > year || (today.getFullYear() === year && today.getMonth() > month);
+  const isOverduePeriod = isPastMonth || (isCurrentMonth && today.getDate() > MENS_DIA_VEN);
+
+  return players.map(p => {
+    const name  = p.fullName || p.name || '';
+    const entry = mensalidades.find(s => s.person === name);
+    let status;
+    if (!entry) {
+      status = isOverduePeriod ? 'atrasada' : 'pendente';
+    } else if (entry.status === 'pending') {
+      status = 'aguardando';
+    } else {
+      status = 'paga';
+    }
+    return { player: p, name, status, entry };
+  }).sort((a, b) => {
+    const order = { atrasada: 0, aguardando: 1, pendente: 2, paga: 3 };
+    return (order[a.status] ?? 4) - (order[b.status] ?? 4) || (a.name).localeCompare(b.name);
+  });
+}
+
+/** Renderiza o painel de controle de mensalidades. */
+export function updateMensalidadesPanel() {
+  const tracker = document.getElementById('mensalidadesTracker');
+  if (!tracker) return;
+
+  const { year, month } = _getFilteredMonthYear();
+  const items   = _getMensalidadesStatus(year, month);
+  const canPay  = isFinanceiro();
+  const total   = items.length;
+  const pagas   = items.filter(i => i.status === 'paga').length;
+  const atrasadas = items.filter(i => i.status === 'atrasada');
+  const aguardando = items.filter(i => i.status === 'aguardando');
+  const pct     = total > 0 ? Math.round((pagas / total) * 100) : 0;
+
+  // Progresso
+  const fill  = document.getElementById('mensProgressFill');
+  const label = document.getElementById('mensProgressLabel');
+  if (fill)  { fill.style.width = `${pct}%`; fill.className = `mens-progress-fill${pct === 100 ? ' mens-progress-fill--done' : ''}`; }
+  if (label) label.textContent = `${pagas} / ${total} pagaram`;
+
+  // Banner de alertas
+  const banner   = document.getElementById('mensAlertBanner');
+  const lateList = document.getElementById('mensLateList');
+  const alertTitle = document.getElementById('mensAlertTitle');
+  const alertSub   = document.getElementById('mensAlertSub');
+
+  const alertItems = [...atrasadas, ...aguardando];
+  if (banner) {
+    if (alertItems.length > 0) {
+      banner.style.display = '';
+      const qtdAtraso = atrasadas.length;
+      const qtdAguard = aguardando.length;
+      let titleParts = [];
+      if (qtdAtraso > 0) titleParts.push(`${qtdAtraso} em atraso`);
+      if (qtdAguard > 0) titleParts.push(`${qtdAguard} aguardando aprovação`);
+      if (alertTitle) alertTitle.textContent = titleParts.join(' · ');
+      if (alertSub)   alertSub.textContent   = `Vencimento: dia ${MENS_DIA_VEN} — ${MONTHS_PTBR[month]} ${year}`;
+    } else {
+      banner.style.display = 'none';
+    }
+  }
+  if (lateList) {
+    lateList.innerHTML = alertItems.map(i => {
+      const badgeCls = i.status === 'atrasada' ? 'mens-badge--late' : 'mens-badge--waiting';
+      const badgeTxt = i.status === 'atrasada' ? 'Atrasado' : 'Aguardando';
+      const payBtn   = canPay && i.status === 'atrasada'
+        ? `<button class="mens-quick-pay" onclick="window.quickPayMensalidade('${esc(i.name)}','${year}-${String(month+1).padStart(2,'0')}')">
+             <i class="fa-solid fa-check"></i> Pagar
+           </button>`
+        : (canPay && i.status === 'aguardando' && i.entry
+            ? `<button class="mens-quick-pay" onclick="approveSalary('${i.entry.id}')">
+                 <i class="fa-solid fa-check"></i> Aprovar
+               </button>`
+            : '');
+      return `<div class="mens-late-item">
+        <span class="mens-late-name">${esc(i.name)}</span>
+        <span class="mens-badge ${badgeCls}">${badgeTxt}</span>
+        ${payBtn}
+      </div>`;
+    }).join('');
+  }
+
+  // Lista de jogadores
+  const listEl = document.getElementById('mensalidadesList');
+  if (!listEl) return;
+
+  if (!total) {
+    listEl.innerHTML = `<div class="mens-empty"><i class="fa-solid fa-users-slash"></i><span>Nenhum jogador cadastrado</span></div>`;
+    return;
+  }
+
+  listEl.innerHTML = items.map(i => {
+    const initials = i.name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
+    let badgeCls, badgeTxt, badgeIcon;
+    switch (i.status) {
+      case 'paga':
+        badgeCls  = 'mens-badge--paid'; badgeTxt = 'Pago'; badgeIcon = 'fa-check';
+        break;
+      case 'aguardando':
+        badgeCls  = 'mens-badge--waiting'; badgeTxt = 'Aguardando'; badgeIcon = 'fa-clock';
+        break;
+      case 'atrasada':
+        badgeCls  = 'mens-badge--late'; badgeTxt = 'Atrasado'; badgeIcon = 'fa-exclamation';
+        break;
+      default:
+        badgeCls  = 'mens-badge--pending'; badgeTxt = 'Pendente'; badgeIcon = 'fa-minus';
+    }
+
+    // Ação rápida para financeiro
+    let actionBtn = '';
+    if (canPay) {
+      if (i.status === 'atrasada' || i.status === 'pendente') {
+        actionBtn = `<button class="mens-action-btn" title="Registrar pagamento"
+          onclick="window.quickPayMensalidade('${esc(i.name)}','${year}-${String(month+1).padStart(2,'0')}')">
+          <i class="fa-solid fa-plus"></i>
+        </button>`;
+      } else if (i.status === 'aguardando' && i.entry) {
+        actionBtn = `<button class="mens-action-btn mens-action-btn--approve" title="Aprovar pagamento"
+          onclick="approveSalary('${i.entry.id}')">
+          <i class="fa-solid fa-check"></i>
+        </button>`;
+      }
+    }
+
+    const payDate = i.entry?.date ? `<span class="mens-pay-date">${formatDate(i.entry.date)}</span>` : '';
+
+    return `<div class="mens-player-row mens-player-row--${i.status}">
+      <div class="mens-avatar">${initials}</div>
+      <div class="mens-player-info">
+        <span class="mens-player-name">${esc(i.name)}</span>
+        ${payDate}
+      </div>
+      <div class="mens-player-right">
+        <span class="mens-badge ${badgeCls}"><i class="fa-solid ${badgeIcon}"></i> ${badgeTxt}</span>
+        ${actionBtn}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/**
+ * Registra o pagamento de mensalidade de um jogador (uso do financeiro).
+ * Cria e aprova a entrada imediatamente.
+ */
+export function quickPayMensalidade(playerName, monthKey) {
+  if (!isFinanceiro()) { showAlert('Sem permissão para registrar pagamentos.', 'warning'); return; }
+
+  const teamId = getTeamId();
+  if (!teamId) { showAlert('Erro: time não identificado.', 'danger'); return; }
+
+  const today = new Date();
+  const [year, month] = (monthKey || '').split('-').map(Number);
+  // Data de pagamento: hoje (se mês atual) ou último dia do mês referência
+  let payDate;
+  if (!isNaN(year) && !isNaN(month)) {
+    const now = new Date();
+    const isCurMonth = now.getFullYear() === year && (now.getMonth() + 1) === month;
+    payDate = isCurMonth
+      ? now.toISOString().slice(0, 10)
+      : `${year}-${String(month).padStart(2,'0')}-${String(MENS_DIA_VEN).padStart(2,'0')}`;
+  } else {
+    payDate = today.toISOString().slice(0, 10);
+  }
+
+  const entry = {
+    id: generateId(),
+    person: playerName,
+    salaryType: 'mensalidade',
+    amount: MENS_VALOR,
+    grossAmount: MENS_VALOR,
+    date: payDate,
+    description: '',
+    teamId,
+    familyId: teamId,
+    createdAt: new Date().toISOString(),
+    createdBy: state.currentUser?.id || '',
+    createdByName: state.currentUser?.fullName || '',
+    status: 'approved',
+    approvedBy: state.currentUser?.id || '',
+    approvedByName: state.currentUser?.fullName || '',
+    approvedAt: new Date().toISOString(),
+    additions: [],
+    deductions: [],
+    totalAdditions: 0,
+    totalDeductions: 0,
+  };
+
+  state.salaries.push(entry);
+  saveDataToStorage();
+  saveToFirebase('salaries', entry);
+  showAlert(`Mensalidade de ${playerName} registrada!`, 'success');
+  updateSalaryDisplay();
+  updateDashboard();
+}
+
 // ===== GLOBALS =====
 window.deleteSalary = deleteSalary;
 window.approveSalary = approveSalary;
 window.rejectSalary  = rejectSalary;
+window.quickPayMensalidade = quickPayMensalidade;
+
+// Toggle do banner de alertas
+window._mensToggleAlert = (() => {
+  let _open = false;
+  return function() {
+    _open = !_open;
+    const list    = document.getElementById('mensLateList');
+    const chevron = document.getElementById('mensAlertChevron');
+    if (list)    list.style.display = _open ? '' : 'none';
+    if (chevron) chevron.style.transform = _open ? 'rotate(180deg)' : '';
+  };
+})();

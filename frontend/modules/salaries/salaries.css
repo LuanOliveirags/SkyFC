@@ -834,3 +834,338 @@
   from { transform: scale(0); }
   to   { transform: scale(1); }
 }
+
+/* ═══════════════════════════════════════════
+   PAINEL CONTROLE DE MENSALIDADES POR JOGADOR
+═══════════════════════════════════════════ */
+
+.mens-tracker {
+  margin: 0 16px 4px;
+  border-radius: var(--r-xl);
+  border: 1.5px solid var(--border);
+  background: var(--bg-card);
+  overflow: hidden;
+}
+
+/* Cabeçalho */
+.mens-tracker-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px 10px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.mens-tracker-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.88rem;
+  font-weight: var(--fw-bold);
+  color: var(--text-primary);
+}
+.mens-tracker-title i {
+  color: var(--primary);
+  font-size: 0.9rem;
+}
+.mens-month-filter {
+  flex-shrink: 0;
+}
+
+/* Banner de alertas */
+.mens-alert-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 14px;
+  margin: 0 12px 10px;
+  border-radius: var(--r-lg);
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  animation: slide-down 0.25s ease;
+}
+.mens-alert-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.mens-alert-icon {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: rgba(239, 68, 68, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  color: #ef4444;
+  flex-shrink: 0;
+}
+.mens-alert-title {
+  font-size: 0.82rem;
+  font-weight: var(--fw-bold);
+  color: #ef4444;
+  margin: 0;
+}
+.mens-alert-sub {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+.mens-alert-toggle {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  border: 1px solid rgba(239,68,68,0.3);
+  background: rgba(239,68,68,0.06);
+  color: #ef4444;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+.mens-alert-toggle i {
+  transition: transform 0.25s ease;
+}
+.mens-alert-toggle:hover { background: rgba(239,68,68,0.14); }
+
+/* Lista expandida de atrasados */
+.mens-late-list {
+  margin: 0 12px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.mens-late-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  border-radius: var(--r-md);
+  background: var(--bg-secondary, rgba(0,0,0,0.03));
+  font-size: 0.8rem;
+}
+.mens-late-name {
+  flex: 1;
+  font-weight: var(--fw-semi);
+  color: var(--text-primary);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Barra de progresso */
+.mens-progress-section {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 16px 12px;
+}
+.mens-progress-bar-wrap {
+  flex: 1;
+}
+.mens-progress-bar {
+  height: 7px;
+  border-radius: 99px;
+  background: var(--border);
+  overflow: hidden;
+}
+.mens-progress-fill {
+  height: 100%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, #f97316, #22c55e);
+  transition: width 0.6s cubic-bezier(.22,.68,0,1.2);
+}
+.mens-progress-fill--done {
+  background: linear-gradient(90deg, #22c55e, #16a34a);
+}
+.mens-progress-label {
+  font-size: 0.72rem;
+  font-weight: var(--fw-bold);
+  color: var(--text-secondary);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* Lista de jogadores */
+.mens-players-list {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 8px;
+}
+.mens-player-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  border-top: 1px solid var(--border);
+  transition: background 0.15s;
+}
+.mens-player-row:hover {
+  background: var(--bg-hover, rgba(0,0,0,0.025));
+}
+.mens-player-row--atrasada .mens-avatar {
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+  border: 1.5px solid rgba(239,68,68,0.25);
+}
+.mens-player-row--paga .mens-avatar {
+  background: rgba(34, 197, 94, 0.1);
+  color: #16a34a;
+  border: 1.5px solid rgba(34,197,94,0.2);
+}
+.mens-player-row--aguardando .mens-avatar {
+  background: rgba(234,179,8,0.1);
+  color: #b45309;
+  border: 1.5px solid rgba(234,179,8,0.2);
+}
+.mens-player-row--pendente .mens-avatar {
+  background: rgba(148,163,184,0.1);
+  color: var(--text-muted);
+  border: 1.5px solid var(--border);
+}
+
+/* Avatar com iniciais */
+.mens-avatar {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  font-weight: var(--fw-black);
+  flex-shrink: 0;
+  letter-spacing: 0.03em;
+}
+
+/* Info do jogador */
+.mens-player-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.mens-player-name {
+  font-size: 0.84rem;
+  font-weight: var(--fw-semi);
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.mens-pay-date {
+  font-size: 0.67rem;
+  color: var(--text-muted);
+}
+
+/* Lado direito: badge + ação */
+.mens-player-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+/* Badges de status */
+.mens-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: var(--r-full);
+  font-size: 0.67rem;
+  font-weight: var(--fw-bold);
+  white-space: nowrap;
+}
+.mens-badge--paid    { background: rgba(34,197,94,0.12);  color: #16a34a; border: 1px solid rgba(34,197,94,0.25); }
+.mens-badge--late    { background: rgba(239,68,68,0.12);  color: #ef4444; border: 1px solid rgba(239,68,68,0.25); }
+.mens-badge--waiting { background: rgba(234,179,8,0.12);  color: #b45309; border: 1px solid rgba(234,179,8,0.25); }
+.mens-badge--pending { background: rgba(148,163,184,0.1); color: var(--text-muted); border: 1px solid var(--border); }
+
+/* Botão de ação rápida */
+.mens-action-btn {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  border: 1.5px solid var(--primary);
+  background: rgba(var(--primary-rgb), 0.08);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.72rem;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+.mens-action-btn:hover {
+  background: var(--primary);
+  color: #fff;
+  transform: scale(1.1);
+}
+.mens-action-btn--approve {
+  border-color: #22c55e;
+  color: #16a34a;
+  background: rgba(34,197,94,0.08);
+}
+.mens-action-btn--approve:hover {
+  background: #22c55e;
+  color: #fff;
+}
+
+/* Botão de pagamento rápido no banner */
+.mens-quick-pay {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: var(--r-full);
+  border: 1.5px solid var(--primary);
+  background: rgba(var(--primary-rgb), 0.07);
+  color: var(--primary);
+  font-size: 0.72rem;
+  font-weight: var(--fw-semi);
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+.mens-quick-pay:hover {
+  background: var(--primary);
+  color: #fff;
+}
+
+/* Estado vazio */
+.mens-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 28px 16px;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+.mens-empty i {
+  font-size: 1.6rem;
+  opacity: 0.45;
+}
+
+/* Dark mode ajustes */
+[data-theme="dark"] .mens-tracker {
+  border-color: rgba(255,255,255,0.07);
+}
+[data-theme="dark"] .mens-alert-banner {
+  background: rgba(239,68,68,0.1);
+  border-color: rgba(239,68,68,0.2);
+}
+[data-theme="dark"] .mens-late-item {
+  background: rgba(255,255,255,0.04);
+}
+
+@keyframes slide-down {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
