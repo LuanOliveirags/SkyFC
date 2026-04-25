@@ -67,11 +67,12 @@ const FORMATIONS = {
 
 // ===== ESTADO LOCAL =====
 let _currentFormation = '4-4-2';
-let _assignments = {};      // { posId: playerName }
-let _activePos = null;      // posição sendo editada no picker
-let _players = [];          // lista de jogadores do Firestore
-let _savedLineups = [];     // escalações salvas (rascunhos) — só editor
-let _canEdit = false;       // true somente para comissão técnica (isComissao())
+let _assignments = {};        // { posId: playerName }
+let _customPositions = {};    // { posId: { top, left } } — posições arrastadas livremente
+let _activePos = null;        // posição sendo editada no picker
+let _players = [];            // lista de jogadores do Firestore
+let _savedLineups = [];       // escalações salvas (rascunhos) — só editor
+let _canEdit = false;         // true somente para comissão técnica (isComissao())
 
 const LS_KEY_ACTIVE  = 'skyfc_lineup_active';
 const LS_KEY_SAVED   = 'skyfc_lineup_saved';
@@ -93,6 +94,7 @@ async function publishToFirestore() {
   const entry = {
     formation: _currentFormation,
     players: { ..._assignments },
+    customPositions: { ..._customPositions },
     matchInfo,
     savedBy: state.currentUser?.uid || '',
     savedByName: state.currentUser?.fullName || state.currentUser?.name || 'Treinador',
@@ -143,11 +145,13 @@ function showPublishedInfo(entry) {
 // ===== HELPERS (rascunho local — somente editor) =====
 function loadFromStorage() {
   try {
+    const active = JSON.parse(localStorage.getItem(LS_KEY_ACTIVE) || '{}');
     _currentFormation = active.formation || '4-4-2';
     _assignments = active.players || {};
+    _customPositions = active.customPositions || {};
     const matchInput = document.getElementById('lineupMatchInfo');
     if (matchInput) matchInput.value = active.matchInfo || '';
-  } catch { _assignments = {}; }
+  } catch { _assignments = {}; _customPositions = {}; }
 
   try {
     _savedLineups = JSON.parse(localStorage.getItem(LS_KEY_SAVED) || '[]');
@@ -159,6 +163,7 @@ function saveActive() {
   localStorage.setItem(LS_KEY_ACTIVE, JSON.stringify({
     formation: _currentFormation,
     players: _assignments,
+    customPositions: _customPositions,
     matchInfo,
     updatedAt: new Date().toISOString()
   }));
@@ -215,6 +220,7 @@ function renderFormationChips() {
   container.querySelectorAll('.lf-chip').forEach(btn => {
     btn.addEventListener('click', () => {
       _currentFormation = btn.dataset.formation;
+      _customPositions = {};  // reset posições livres ao trocar formação
       const newPosIds = computePositions(_currentFormation).map(p => p.id);
       Object.keys(_assignments).forEach(k => {
         if (!newPosIds.includes(k)) delete _assignments[k];
@@ -233,13 +239,16 @@ function renderField() {
   const positions = computePositions(_currentFormation);
 
   container.innerHTML = positions.map(pos => {
+    const cp = _customPositions[pos.id];
+    const top  = cp ? cp.top  : pos.top;
+    const left = cp ? cp.left : pos.left;
     const name = _assignments[pos.id] || '';
     const filled = !!name;
     const isGk = pos.id === 'gk';
     const displayName = name.length > 8 ? name.slice(0, 8) + '…' : name;
     return `
       <div class="lp-slot ${filled ? 'lp-filled' : ''} ${isGk ? 'lp-gk' : ''}"
-           style="top:${pos.top.toFixed(1)}%;left:${pos.left.toFixed(1)}%"
+           style="top:${top.toFixed(1)}%;left:${left.toFixed(1)}%"
            data-pos-id="${pos.id}" data-pos-label="${pos.label}" title="${pos.label}${name ? ': '+name : ''}">
         <div class="lp-circle">
           ${filled
@@ -251,21 +260,80 @@ function renderField() {
   }).join('');
 
   if (!_canEdit) return;  // jogadores só visualizam
+
+  const field = document.getElementById('lineupField');
+
   container.querySelectorAll('.lp-slot').forEach(slot => {
-    slot.addEventListener('click', () => openPicker(slot.dataset.posId, slot.dataset.posLabel));
-    // Long press para limpar
+    const posId = slot.dataset.posId;
+    let isDragging = false;
+    let dragMoved  = false;
+    let startX, startY;
     let pressTimer;
-    slot.addEventListener('pointerdown', () => {
+
+    slot.addEventListener('pointerdown', e => {
+      e.stopPropagation();
+      isDragging = false;
+      dragMoved  = false;
+      startX = e.clientX;
+      startY = e.clientY;
+      slot.setPointerCapture(e.pointerId);
+
+      // Long press para limpar jogador
       pressTimer = setTimeout(() => {
-        if (_assignments[slot.dataset.posId]) {
-          delete _assignments[slot.dataset.posId];
+        if (!dragMoved && _assignments[posId]) {
+          delete _assignments[posId];
           renderField();
           saveActive();
         }
       }, 600);
     });
-    slot.addEventListener('pointerup', () => clearTimeout(pressTimer));
-    slot.addEventListener('pointerleave', () => clearTimeout(pressTimer));
+
+    slot.addEventListener('pointermove', e => {
+      if (!e.buttons) return;
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+
+      if (!isDragging && Math.sqrt(dx * dx + dy * dy) > 8) {
+        isDragging = true;
+        dragMoved  = true;
+        clearTimeout(pressTimer);
+        slot.classList.add('lp-dragging');
+      }
+
+      if (isDragging) {
+        const fieldRect = field.getBoundingClientRect();
+        const newLeft = ((e.clientX - fieldRect.left) / fieldRect.width)  * 100;
+        const newTop  = ((e.clientY - fieldRect.top)  / fieldRect.height) * 100;
+        slot.style.left = Math.max(4, Math.min(96, newLeft)).toFixed(1) + '%';
+        slot.style.top  = Math.max(4, Math.min(96, newTop)).toFixed(1)  + '%';
+      }
+    });
+
+    slot.addEventListener('pointerup', e => {
+      clearTimeout(pressTimer);
+      slot.classList.remove('lp-dragging');
+      if (isDragging) {
+        const fieldRect = field.getBoundingClientRect();
+        _customPositions[posId] = {
+          left: Math.max(4, Math.min(96, ((e.clientX - fieldRect.left) / fieldRect.width)  * 100)),
+          top:  Math.max(4, Math.min(96, ((e.clientY - fieldRect.top)  / fieldRect.height) * 100))
+        };
+        saveActive();
+        isDragging = false;
+      }
+    });
+
+    slot.addEventListener('pointercancel', () => {
+      clearTimeout(pressTimer);
+      slot.classList.remove('lp-dragging');
+      isDragging = false;
+    });
+
+    // Tap para abrir picker — só se não arrastou
+    slot.addEventListener('click', () => {
+      if (dragMoved) { dragMoved = false; return; }
+      openPicker(posId, slot.dataset.posLabel);
+    });
   });
 }
 
@@ -417,6 +485,7 @@ function renderSavedLineups() {
 function loadSavedLineup(entry) {
   _currentFormation = entry.formation;
   _assignments = { ...entry.players };
+  _customPositions = { ...(entry.customPositions || {}) };
   const matchInput = document.getElementById('lineupMatchInfo');
   if (matchInput) matchInput.value = entry.matchInfo || '';
   renderFormationChips();
@@ -438,6 +507,7 @@ export async function openLineup() {
     if (!Object.keys(_assignments).length && published?.players) {
       _currentFormation = published.formation || '4-4-2';
       _assignments = { ...published.players };
+      _customPositions = { ...(published.customPositions || {}) };
       const matchInput = document.getElementById('lineupMatchInfo');
       if (matchInput) matchInput.value = published.matchInfo || '';
     }
@@ -446,6 +516,7 @@ export async function openLineup() {
     if (published) {
       _currentFormation = published.formation || '4-4-2';
       _assignments = { ...published.players };
+      _customPositions = { ...(published.customPositions || {}) };
       const matchInput = document.getElementById('lineupMatchInfo');
       if (matchInput) matchInput.value = published.matchInfo || '';
     } else {

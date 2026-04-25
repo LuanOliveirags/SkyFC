@@ -298,6 +298,7 @@
   transform: translate(-50%, -50%);
   z-index: 10;
   cursor: pointer;
+  touch-action: none;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -327,6 +328,16 @@
 }
 .lp-slot:active .lp-circle {
   transform: scale(0.92);
+}
+.lp-slot.lp-dragging {
+  cursor: grabbing;
+  z-index: 20;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.7));
+  touch-action: none;
+}
+.lp-slot.lp-dragging .lp-circle {
+  transform: scale(1.15);
+  border-color: #fff;
 }
 .lp-pos-label {
   font-size: 0.48rem;
