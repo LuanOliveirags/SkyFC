@@ -133,6 +133,17 @@
   font-weight: var(--fw-medium);
 }
 
+/* Stat de "Aguardando confirmação" — cor âmbar */
+.skyfc-stat--aguardando .skyfc-stat-icon {
+  color: #f59e0b;
+}
+.skyfc-stat--aguardando .skyfc-stat-val {
+  color: #fbbf24;
+}
+.skyfc-stat--aguardando .skyfc-stat-label {
+  color: rgba(251, 191, 36, 0.75);
+}
+
 /* Balance card decorative football icon */
 .balance-card-bg-icon {
   position: absolute;

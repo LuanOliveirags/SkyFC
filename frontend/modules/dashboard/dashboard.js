@@ -93,11 +93,19 @@ export function updateDashboard() {
     return sDate.getMonth() === month && sDate.getFullYear() === year;
   });
 
+  // Apenas mensalidades aprovadas (ou sem status = legado) contam no caixa
+  const monthSalariesApproved = monthSalaries.filter(s =>
+    s.salaryType !== 'mensalidade' || s.status === 'approved' || !s.status
+  );
+  const monthSalariesPending = monthSalaries.filter(s =>
+    s.salaryType === 'mensalidade' && s.status === 'pending'
+  );
+
   const monthDebts = state.debts.filter(d => d.status === 'active');
 
   const totalExpenses = monthTransactions.filter(t => t.type === 'saida').reduce((sum, t) => sum + t.amount, 0);
   const totalTransactionIncome = monthTransactions.filter(t => t.type === 'entrada').reduce((sum, t) => sum + t.amount, 0);
-  const totalSalaryIncome = monthSalaries.reduce((sum, s) => sum + s.amount, 0);
+  const totalSalaryIncome = monthSalariesApproved.reduce((sum, s) => sum + s.amount, 0);
   const totalIncome = totalTransactionIncome + totalSalaryIncome;
   const totalBalance = totalIncome - totalExpenses;
   const totalDebt = monthDebts.reduce((sum, d) => sum + d.amount, 0);
@@ -112,20 +120,21 @@ export function updateDashboard() {
     return tDate.getMonth() === month && tDate.getFullYear() === year;
   });
   const totalPaidDebts = paidDebtsThisMonth.reduce((sum, t) => sum + t.amount, 0);
-  const totalMonthDeductions = monthSalaries.reduce((sum, s) => sum + (s.totalDeductions || 0), 0);
+  const totalMonthDeductions = monthSalariesApproved.reduce((sum, s) => sum + (s.totalDeductions || 0), 0);
 
   // ── Mensalidades e adimplência ──
-  const mensalidadesThisMonth = monthSalaries.filter(s => s.salaryType === 'mensalidade');
+  const mensalidadesThisMonth = monthSalariesApproved.filter(s => s.salaryType === 'mensalidade');
+  const aguardandoCount       = monthSalariesPending.length;
   const totalMensalidades = mensalidadesThisMonth.reduce((sum, s) => sum + s.amount, 0);
   const playersPaid = new Set(mensalidadesThisMonth.map(s => s.person)).size;
   const totalPlayers = (state.players || state.familyMembers || []).length;
   const pendentes = totalPlayers > 0 ? totalPlayers - playersPaid : 0;
 
-  // ── Saldos das 4 Caixas ──
+  // ── Saldos das 4 Caixas ── (apenas aprovadas)
   const CAIXAS = ['mensalidade', 'vale_churrasco', 'festivais', 'patrocinio'];
   const caixaBalances = {};
   CAIXAS.forEach(c => {
-    const income = monthSalaries.filter(s => s.salaryType === c).reduce((sum, s) => sum + s.amount, 0)
+    const income = monthSalariesApproved.filter(s => s.salaryType === c).reduce((sum, s) => sum + s.amount, 0)
       + monthTransactions.filter(t => t.type === 'entrada' && t.caixa === c).reduce((sum, t) => sum + t.amount, 0);
     const expense = monthTransactions.filter(t => t.type === 'saida' && t.caixa === c).reduce((sum, t) => sum + t.amount, 0);
     caixaBalances[c] = income - expense;
@@ -178,12 +187,16 @@ export function updateDashboard() {
   if (balanceLabel) balanceLabel.textContent = 'Caixa do Clube';
 
   // ── Sky FC Banner stats ──
-  const elP = document.getElementById('skyfc-players-count');
-  const elA = document.getElementById('skyfc-adimplentes-count');
+  const elP    = document.getElementById('skyfc-players-count');
+  const elA    = document.getElementById('skyfc-adimplentes-count');
   const elPend = document.getElementById('skyfc-pendentes-count');
-  if (elP) elP.textContent = totalPlayers || '—';
-  if (elA) elA.textContent = playersPaid;
+  const elAg   = document.getElementById('skyfc-aguardando-count');
+  const elAgStat = document.getElementById('skyfc-aguardando-stat');
+  if (elP)    elP.textContent    = totalPlayers || '—';
+  if (elA)    elA.textContent    = playersPaid;
   if (elPend) elPend.textContent = pendentes;
+  if (elAg)   elAg.textContent   = aguardandoCount;
+  if (elAgStat) elAgStat.style.display = aguardandoCount > 0 ? '' : 'none';
 
   // ── Health badge ──
   const badge = document.getElementById('skyfcHealthBadge');
