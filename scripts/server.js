@@ -32,12 +32,18 @@ const MIME = {
 };
 
 function getLanIp() {
+  // Prefer common private ranges (Wi-Fi/Ethernet) over virtual/VPN adapters
+  const candidates = [];
   for (const ifaces of Object.values(os.networkInterfaces())) {
     for (const iface of ifaces) {
-      if (iface.family === 'IPv4' && !iface.internal) return iface.address;
+      if (iface.family !== 'IPv4' || iface.internal) continue;
+      const ip = iface.address;
+      if (ip.startsWith('192.168.') || ip.startsWith('10.')) candidates.unshift(ip);
+      else if (ip.startsWith('172.')) candidates.push(ip);
+      else candidates.push(ip);
     }
   }
-  return 'localhost';
+  return candidates[0] || 'localhost';
 }
 
 const server = http.createServer((req, res) => {
@@ -70,11 +76,13 @@ const server = http.createServer((req, res) => {
     if (!fs.existsSync(filePath)) { res.writeHead(404); res.end('Not Found'); return; }
   }
 
-  const ext  = path.extname(filePath).toLowerCase();
-  const mime = MIME[ext] || 'application/octet-stream';
-  const stat = fs.statSync(filePath);
+  const ext     = path.extname(filePath).toLowerCase();
+  const mime    = MIME[ext] || 'application/octet-stream';
+  const stat    = fs.statSync(filePath);
+  const headers = { 'Content-Type': mime, 'Content-Length': stat.size };
+  if (ext === '.apk') headers['Content-Disposition'] = 'attachment; filename="skyfc.apk"';
 
-  res.writeHead(200, { 'Content-Type': mime, 'Content-Length': stat.size });
+  res.writeHead(200, headers);
   fs.createReadStream(filePath).pipe(res);
 });
 

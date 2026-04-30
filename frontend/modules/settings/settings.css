@@ -407,6 +407,16 @@
 .apk-copy-btn:hover { background: rgba(var(--primary-rgb),0.1); }
 .apk-copy-btn.copied { color: var(--success); }
 
+.apk-warn {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: var(--r-md);
+  background: rgba(229, 160, 0, 0.12);
+  color: #e5a000;
+  font-size: 0.8125rem;
+  text-align: center;
+}
+
 .apk-download-btn {
   display: flex;
   align-items: center;

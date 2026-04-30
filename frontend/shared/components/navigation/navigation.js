@@ -27,18 +27,45 @@ async function openApkModal() {
 
   modal.classList.add('active');
 
-  let apkUrl = `${window.location.origin}/skyfc.apk`;
+  let apkUrl    = `${window.location.origin}/skyfc.apk`;
+  let apkExists = true;
+  let lanOk     = false;
 
   try {
-    const res  = await fetch('/api/apk-info');
+    const res = await fetch('/api/apk-info');
     if (res.ok) {
       const info = await res.json();
-      if (info.apkUrl) apkUrl = info.apkUrl;
+      if (info.apkUrl)  { apkUrl = info.apkUrl; lanOk = !info.apkUrl.includes('localhost'); }
+      if (info.apkExists === false) apkExists = false;
     }
   } catch { /* servidor não disponível — usa origin */ }
 
   urlText.textContent = apkUrl;
-  dlLink.href = apkUrl;
+  dlLink.href         = apkUrl;
+
+  // Aviso: APK não encontrado
+  const existingWarn = modal.querySelector('.apk-warn');
+  if (existingWarn) existingWarn.remove();
+  if (!apkExists) {
+    const warn = document.createElement('p');
+    warn.className   = 'apk-warn';
+    warn.textContent = 'APK não encontrado. Execute o build Android primeiro.';
+    dlLink.before(warn);
+    dlLink.style.pointerEvents = 'none';
+    dlLink.style.opacity       = '0.4';
+  } else {
+    dlLink.style.pointerEvents = '';
+    dlLink.style.opacity       = '';
+  }
+
+  // Aviso: IP local não detectado (QR code inútil)
+  const wifiHint = modal.querySelector('.apk-wifi-hint');
+  if (wifiHint) {
+    wifiHint.style.color = lanOk ? '' : 'var(--color-warn, #e5a000)';
+    wifiHint.innerHTML   = lanOk
+      ? '<i class="fa-solid fa-wifi"></i> Conecte o celular na mesma rede Wi-Fi'
+      : '<i class="fa-solid fa-triangle-exclamation"></i> IP local não detectado — use o link no celular manualmente';
+  }
 
   // QR Code via API pública (sem dependência extra)
   const qrSrc = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(apkUrl)}&size=160x160&margin=4`;
