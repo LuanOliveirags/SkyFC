@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+
+# Capacitor build output (gerado por npm run build)
+www/
+
+# Android & iOS native builds
+android/
+ios/
+
+# Environment / secrets
+.env
+.env.local
+*.env
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/settings.json
+*.suo
+*.user
+
+# Logs
+npm-debug.log*

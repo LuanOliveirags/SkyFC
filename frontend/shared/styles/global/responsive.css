@@ -5,7 +5,7 @@
 
 /* ─── Fluid Typography Base ─── */
 html {
-  font-size: clamp(14px, 0.875rem + 0.25vw, 17px);
+  font-size: clamp(15px, 0.9375rem + 0.15vw, 16px);
 }
 
 /* ─── Tablet & larger (640px+) ─── */
@@ -38,9 +38,10 @@ html {
    ═══════════════════════════════════════════════════════════ */
 @media (min-width: 1024px) {
 
-  /* ── CSS Variable for sidebar width ── */
+  /* ── Layout vars for desktop sidebar ── */
   :root {
     --sidebar-w: 68px;
+    --header-h:  60px;
   }
 
   /* ── Bottom Nav → Left Sidebar (collapsed icon-only) ── */
@@ -209,7 +210,7 @@ html {
     font-size: 0.8125rem;
   }
 
-  /* ── Header offset ── */
+  /* ── Header offset — positioning handled via CSS var ── */
   .header {
     left: var(--sidebar-w);
     width: calc(100% - var(--sidebar-w));
@@ -219,11 +220,9 @@ html {
     margin: 0 auto;
   }
 
-  /* ── Main content offset ── */
+  /* ── Main content uses CSS vars set above ── */
   .main-content {
-    margin-left: var(--sidebar-w);
-    padding: 64px 0 40px 0;
-    width: calc(100% - var(--sidebar-w));
+    padding-bottom: 40px;
   }
 
   /* ── Content containers → wider ── */
@@ -607,9 +606,9 @@ html {
   /* ── Add panel wider ── */
   .add-panel { max-width: 600px; }
 
-  /* ── Safe area reset for desktop ── */
+  /* ── Sidebar has no safe-area padding (desktop) ── */
   .bottom-nav {
-    padding-bottom: 24px;
+    padding-bottom: 12px;
     height: auto;
   }
 
@@ -1139,13 +1138,7 @@ html {
   .chart-card-header { gap: 8px; margin-bottom: 12px; }
 }
 
-/* ─── Safe area (notch handling) ─── */
-@supports (padding-bottom: env(safe-area-inset-bottom)) {
-  @media (max-width: 1023px) {
-    .bottom-nav { padding-bottom: calc(12px + env(safe-area-inset-bottom)); height: calc(76px + env(safe-area-inset-bottom)); }
-    .main-content { padding-bottom: calc(96px + env(safe-area-inset-bottom)); }
-  }
-}
+/* ─── Safe areas via CSS vars (handled in navigation.css using --safe-bottom) ─── */
 
 /* ─── Touch-friendly tap targets (mobile only) ─── */
 @media (pointer: coarse) {

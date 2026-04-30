@@ -163,6 +163,11 @@
                     <span class="sr-text">Atualizar App</span>
                     <span id="updateAppBadge" class="status-pill update-available-pill">Nova versão</span>
                 </button>
+                <button id="installApkBtn" class="settings-row">
+                    <div class="sr-icon apk-icon"><i class="fa-brands fa-android"></i></div>
+                    <span class="sr-text">Instalar APK</span>
+                    <span class="status-pill apk-pill">Android</span>
+                </button>
                 <button id="clearCacheBtn" class="settings-row danger-row">
                     <div class="sr-icon danger-icon"><i class="fa-solid fa-trash-can"></i></div>
                     <span class="sr-text">Limpar Cache</span>
@@ -321,6 +326,41 @@
             <div id="familiesListContainer">
                 <div class="users-list-loading">
                     <i class="fa-solid fa-spinner fa-spin"></i> Carregando famílias...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Instalar APK -->
+    <div id="apkModal" class="modal">
+        <div class="modal-content apk-modal-content">
+            <div class="modal-header">
+                <h3><i class="fa-brands fa-android"></i> Instalar APK</h3>
+                <button class="close modal-close-btn"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="apk-modal-body">
+                <p class="apk-wifi-hint"><i class="fa-solid fa-wifi"></i> Conecte o celular na mesma rede Wi-Fi</p>
+                <div class="apk-qr-wrap" id="apkQrWrap">
+                    <img id="apkQrImg" src="" alt="QR Code" class="apk-qr-img">
+                    <div class="apk-qr-loading" id="apkQrLoading">
+                        <i class="fa-solid fa-spinner fa-spin"></i>
+                    </div>
+                </div>
+                <p class="apk-hint">Escaneie com a câmera do celular para baixar direto via Wi-Fi</p>
+                <div class="apk-url-row">
+                    <span class="apk-url-text" id="apkUrlText">Carregando...</span>
+                    <button class="apk-copy-btn" id="apkCopyBtn" title="Copiar link">
+                        <i class="fa-solid fa-copy"></i>
+                    </button>
+                </div>
+                <a id="apkDownloadLink" class="btn-primary apk-download-btn" href="#" download="skyfc.apk">
+                    <i class="fa-solid fa-download"></i> Baixar APK
+                </a>
+                <div class="apk-steps">
+                    <div class="apk-step"><span class="apk-num">1</span><span>Escaneie o QR ou copie o link no celular</span></div>
+                    <div class="apk-step"><span class="apk-num">2</span><span>Abra o arquivo <code>.apk</code> baixado</span></div>
+                    <div class="apk-step"><span class="apk-num">3</span><span>Permita instalação de fontes desconhecidas</span></div>
+                    <div class="apk-step"><span class="apk-num">4</span><span>Instale e aproveite o Sky FC!</span></div>
                 </div>
             </div>
         </div>

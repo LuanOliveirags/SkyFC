@@ -3,6 +3,7 @@
 // ============================================================
 
 import { loadPages } from './router.js';
+import { initNative } from './native.js';
 import { initFirebase, setRefreshCallback } from './providers/firebase-provider.js';
 import { createDefaultAdmin, checkLoginStatus, initResetPasswordUI } from './providers/auth-provider.js';
 import { setupEventListeners, setupOnlineOfflineListeners } from '../shared/components/navigation/navigation.js';
@@ -15,6 +16,9 @@ import { initChat } from '../modules/chat/chat.js';
 import { initFCM } from '../modules/chat/fcm.js';
 import '../modules/shopping/shopping.js';
 import { initLineup } from '../modules/lineup/lineup.js';
+
+// Inicia Capacitor (StatusBar, SplashScreen, back button) — no-op no browser
+initNative();
 
 // Carrega todos os fragmentos HTML antes de qualquer acesso ao DOM
 await loadPages();

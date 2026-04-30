@@ -16,6 +16,49 @@ import { getNotifSettings, saveNotifSettings, enableNotifications, disableNotifi
 import { openChat, initChat, cleanupChat } from '../../../modules/chat/chat.js';
 import { openLineup } from '../../../modules/lineup/lineup.js';
 
+// ===== APK INSTALL =====
+async function openApkModal() {
+  const modal    = document.getElementById('apkModal');
+  const qrImg    = document.getElementById('apkQrImg');
+  const qrLoad   = document.getElementById('apkQrLoading');
+  const urlText  = document.getElementById('apkUrlText');
+  const copyBtn  = document.getElementById('apkCopyBtn');
+  const dlLink   = document.getElementById('apkDownloadLink');
+
+  modal.classList.add('active');
+
+  let apkUrl = `${window.location.origin}/skyfc.apk`;
+
+  try {
+    const res  = await fetch('/api/apk-info');
+    if (res.ok) {
+      const info = await res.json();
+      if (info.apkUrl) apkUrl = info.apkUrl;
+    }
+  } catch { /* servidor não disponível — usa origin */ }
+
+  urlText.textContent = apkUrl;
+  dlLink.href = apkUrl;
+
+  // QR Code via API pública (sem dependência extra)
+  const qrSrc = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(apkUrl)}&size=160x160&margin=4`;
+  qrImg.onload  = () => qrLoad.classList.add('hidden');
+  qrImg.onerror = () => { qrLoad.innerHTML = '<i class="fa-solid fa-xmark"></i>'; };
+  qrImg.src = qrSrc;
+
+  copyBtn.onclick = async () => {
+    try {
+      await navigator.clipboard.writeText(apkUrl);
+      copyBtn.classList.add('copied');
+      copyBtn.innerHTML = '<i class="fa-solid fa-check"></i>';
+      setTimeout(() => {
+        copyBtn.classList.remove('copied');
+        copyBtn.innerHTML = '<i class="fa-solid fa-copy"></i>';
+      }, 2000);
+    } catch { /* clipboard not available */ }
+  };
+}
+
 // ===== THEME =====
 function initializeTheme() {
   const savedTheme = localStorage.getItem('theme');
@@ -383,6 +426,9 @@ export function setupEventListeners() {
     installBtn.style.display = 'block';
     installBtn.addEventListener('click', () => e.prompt());
   });
+
+  // Install APK
+  document.getElementById('installApkBtn').addEventListener('click', openApkModal);
 
   // Filters
   document.getElementById('monthFilter').addEventListener('change', updateDashboard);

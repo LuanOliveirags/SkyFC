@@ -1,0 +1,24 @@
+{
+  "name": "skyfc",
+  "version": "1.0.0",
+  "description": "Sky FC — Plataforma de gestão do time de futebol",
+  "private": true,
+  "scripts": {
+    "build": "node scripts/build.js",
+    "dev": "npm run build && node scripts/server.js",
+    "cap:sync": "npm run build && npx cap sync",
+    "cap:android": "npm run build && npx cap sync android && npx cap open android",
+    "cap:copy": "npm run build && npx cap copy",
+    "cap:run": "npm run build && npx cap run android"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.3.1",
+    "@capacitor/app": "^8.1.0",
+    "@capacitor/cli": "^8.3.1",
+    "@capacitor/core": "^8.3.1",
+    "@capacitor/haptics": "^8.0.2",
+    "@capacitor/keyboard": "^8.0.3",
+    "@capacitor/splash-screen": "^8.0.1",
+    "@capacitor/status-bar": "^8.0.2"
+  }
+}
