@@ -1,0 +1,11 @@
+#!/bin/sh
+# Fix OneDrive cloud-placeholder files in .git/logs/ before commit.
+# OneDrive marks rarely-accessed .git files as "cloud-only", causing
+# git to fail with "mmap failed" or "Invalid argument" on append.
+# Deleting the placeholder lets git recreate the file locally.
+powershell.exe -NoProfile -NonInteractive -Command "
+  Get-ChildItem -Recurse '.git\logs' -File -ErrorAction SilentlyContinue |
+  Where-Object { \$_.Attributes -band 0x400000 } |
+  ForEach-Object { Remove-Item \$_.FullName -Force -ErrorAction SilentlyContinue }
+" 2>/dev/null
+exit 0
